@@ -1,0 +1,173 @@
+/* #cargaOperativaRepositor: pantalla standalone, mobile-first, sin el layout de admin. */
+
+.repositor-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 32px 16px;
+  background: var(--color-surface-muted);
+}
+
+.repositor-card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  padding: 24px 20px 28px;
+  box-shadow: 0 12px 30px rgba(45, 63, 78, 0.12);
+}
+
+.repositor-card h1 {
+  margin: 0 0 4px;
+  font-size: 1.5rem;
+  color: var(--color-ink);
+}
+
+.repositor-subtitle {
+  margin: 0 0 20px;
+  color: var(--color-text-muted);
+  font-size: 14px;
+}
+
+.repositor-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.repositor-header .repositor-subtitle {
+  margin-bottom: 0;
+}
+
+.repositor-link-button {
+  border: none;
+  background: transparent;
+  color: var(--color-primary);
+  font-size: 13px;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 4px;
+  flex-shrink: 0;
+}
+
+.repositor-form {
+  display: grid;
+  gap: 14px;
+  margin-top: 20px;
+}
+
+.repositor-form label {
+  display: grid;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--color-ink);
+}
+
+.repositor-form input {
+  padding: 14px 12px;
+  font-size: 18px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 10px;
+  color: var(--color-ink);
+}
+
+.repositor-form input:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+
+.repositor-button {
+  padding: 14px 16px;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  border-radius: 10px;
+  background: var(--color-primary);
+  color: var(--color-white);
+  cursor: pointer;
+}
+
+.repositor-button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.repositor-button-secondary {
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+
+.repositor-error {
+  margin: -4px 0 0;
+  font-size: 13px;
+  color: #9c1c1c;
+}
+
+.repositor-form-producto {
+  margin-top: 8px;
+  padding-top: 18px;
+  border-top: 1px solid var(--color-border);
+}
+
+.repositor-producto-info {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  color: var(--color-ink);
+}
+
+.repositor-producto-info strong {
+  font-size: 16px;
+}
+
+.repositor-producto-info span {
+  color: var(--color-text-muted);
+}
+
+/* Toast reutilizado de ResultToast sin depender de App.css. Scopeado bajo
+   .repositor-screen para no pisar el .toast global de App.css: main.jsx importa
+   ambas rutas de forma estática, así que este CSS también se carga fuera de /repositor. */
+.repositor-screen .toast {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  left: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  box-shadow: 0 12px 30px rgba(45, 63, 78, 0.2);
+  font-size: 14px;
+  z-index: 25;
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.repositor-screen .toast-success {
+  background: #ecfdf3;
+  border: 1px solid rgba(16, 128, 74, 0.3);
+  color: #0a6b3f;
+}
+
+.repositor-screen .toast-error {
+  background: rgba(185, 28, 28, 0.08);
+  border: 1px solid rgba(185, 28, 28, 0.3);
+  color: #9c1c1c;
+}
+
+.repositor-screen .toast-close {
+  border: none;
+  background: transparent;
+  color: inherit;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+}

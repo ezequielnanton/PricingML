@@ -1,0 +1,107 @@
+/* #coloresGlobales: tipografía, color de texto y fondo base de toda la aplicación. */
+:root {
+  font-family: Inter, 'Segoe UI', sans-serif;
+  color: #2d3f4e;
+  background: #ffffff;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.5;
+  font-weight: 400;
+
+  /* #paletaMarca: los cuatro colores de marca; todo lo demás se deriva de estos.
+     --color-white es literal (texto blanco sobre fondos de acento fijos -- sidebar, botón
+     primario, etc. -- que no cambian con el tema); el fondo de paneles/tarjetas usa
+     --color-surface, que sí es el que cambia en modo oscuro. */
+  --color-white: #ffffff;
+  --color-ink: #2d3f4e;
+  --color-primary: #416799;
+  --color-mist: #bccbde;
+  --color-text-muted: rgba(45, 63, 78, 0.64);
+  --color-border: rgba(65, 103, 153, 0.28);
+  --color-border-strong: rgba(45, 63, 78, 0.22);
+  --color-surface: #ffffff;
+  --color-surface-muted: rgba(188, 203, 222, 0.28);
+  --color-primary-soft: rgba(65, 103, 153, 0.12);
+  --color-primary-softer: rgba(65, 103, 153, 0.07);
+  /* franja gris de las toolbars (barra superior, franja de herramientas, pestaña activa,
+     filas pares de la grilla estilo Excel) -- antes era el hex #eef1f5 repetido en cada
+     regla, tokenizado para poder redefinirlo en modo oscuro. */
+  --color-toolbar-bg: #eef1f5;
+}
+
+/* #modoOscuro: preferencia guardada por Usuario (ver LoginGate.jsx/ThemeToggle), aplicada
+   como atributo data-theme en <html> -- no sigue prefers-color-scheme del sistema operativo
+   a propósito, porque el pedido fue un toggle manual que cada Usuario elige y que lo sigue
+   a donde inicie sesión. El sidebar (siempre oscuro, ver App.css #sidebarSiempreOscuro) y
+   los pocos colores de estado (verde/rojo/ámbar de alertas y toasts) no se listan acá --
+   ya tienen suficiente contraste sobre el nuevo fondo oscuro sin necesidad de variante propia. */
+:root[data-theme='dark'] {
+  color: #e6ecf4;
+  background: #161d27;
+
+  --color-ink: #e6ecf4;
+  --color-text-muted: rgba(230, 236, 244, 0.64);
+  --color-border: rgba(139, 168, 204, 0.32);
+  --color-border-strong: rgba(230, 236, 244, 0.24);
+  --color-surface: #1b232e;
+  --color-surface-muted: rgba(139, 168, 204, 0.16);
+  --color-primary-soft: rgba(111, 157, 209, 0.2);
+  --color-primary-softer: rgba(111, 157, 209, 0.12);
+  --color-toolbar-bg: #212b38;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--color-surface);
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background: var(--color-surface);
+}
+
+/* #sinScrollHorizontalEnMobile: red de seguridad -- algún elemento angosto (un campo fijo,
+   una etiqueta de endpoint sin wrap, una tabla ancha sin su propio contenedor con scroll)
+   puede terminar corriendo TODA la página hacia los costados en vez de quedarse contenido,
+   en vez de aparecer como un desborde local. overflow-x:hidden en body corta ese
+   corrimiento de raíz -- cada tabla/lista larga sigue teniendo su propio scroll horizontal
+   interno (ver .table-container/.abm-list-table-wrapper en App.css), así que no se pierde
+   la posibilidad de ver columnas de sobra, solo se evita que la página entera se desalinee. */
+@media (max-width: 980px) {
+  body {
+    overflow-x: hidden;
+  }
+}
+
+button,
+input {
+  font: inherit;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+h1 {
+  font-size: clamp(2rem, 3vw, 2.5rem);
+}
+
+h2 {
+  font-size: 1.7rem;
+}
+
+h3 {
+  font-size: 1.1rem;
+  color: var(--color-ink);
+}
+
+small {
+  color: var(--color-text-muted);
+}

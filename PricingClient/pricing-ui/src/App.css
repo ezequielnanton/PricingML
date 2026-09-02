@@ -1,0 +1,2886 @@
+/* #coloresYFormatos: layout principal y paleta visual de componentes. */
+/* #franjaDePuntaAPunta: la franja gris (.sidebar-toolbar) tiene que cruzar todo el ancho
+   de la página, no solo el ancho del sidebar -- por eso .app-shell define 3 filas en vez
+   de dejar que cada columna arme su propio header por separado. .sidebar (el <aside> que
+   devuelve Sidebar.jsx) usa display:contents para que sus hijos (.brand, .sidebar-scroll)
+   participen directo de este grid en vez de quedar encerrados en una sola celda; por eso
+   el fondo oscuro y el alto que antes tenía .sidebar se movieron a .sidebar-scroll, que es
+   la única pieza que sigue ocupando una sola columna (fila "nav"). */
+.app-shell {
+  display: grid;
+  grid-template-columns: var(--sidebar-width, 260px) 1fr;
+  grid-template-rows: auto auto auto auto auto 1fr;
+  grid-template-areas:
+    "brand   brand-fill"
+    "toolbar toolbar"
+    "nav     tabbar"
+    "nav     screentoolbar"
+    "nav     title"
+    "nav     main";
+  height: 100vh;
+  background: var(--color-surface);
+  color: var(--color-ink);
+}
+
+/* #sidebarRedimensionable: manija angosta pegada al borde derecho del sidebar, del alto de
+   toda la pantalla (position:fixed, no depende del grid ni del display:contents de
+   .sidebar) -- su posición se recalcula sola en cada arrastre porque lee la misma variable
+   CSS que define el ancho de la columna (--sidebar-width, ver App.jsx). Invisible en reposo,
+   se resalta con el color de acento al pasar el mouse para que se note que se puede
+   arrastrar (mismo tono ya usado en toda la app para "esto es interactivo"). */
+.sidebar-resize-handle {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: var(--sidebar-width, 260px);
+  width: 6px;
+  margin-left: -3px;
+  cursor: col-resize;
+  z-index: 30;
+  background: transparent;
+}
+
+.sidebar-resize-handle:hover,
+.sidebar-resize-handle:active {
+  background: var(--color-primary-soft);
+}
+
+.sidebar {
+  display: contents;
+}
+
+.brand {
+  grid-area: brand;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  background: var(--color-surface);
+  padding: 7px 18px;
+}
+
+.sidebar-toolbar {
+  grid-area: toolbar;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0px 14px;
+  background: var(--color-toolbar-bg);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.sidebar-toolbar-icons {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.sidebar-toolbar-collapse {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.sidebar-toolbar-collapse:hover {
+  background: var(--color-surface-muted);
+  color: var(--color-ink);
+}
+
+/* #dosIconosDeToggle: el botón de colapsar/expandir tiene dos íconos distintos -- el que se
+   ve depende del ancho de pantalla, no del estado, por eso el swap es puro CSS (ver mobile
+   media query más abajo) y no lógica en Sidebar.jsx. */
+.toggle-icon-desktop {
+  display: flex;
+}
+
+.toggle-icon-mobile {
+  display: none;
+}
+
+/* #rielDeIconos: con .app-shell.collapsed la columna izquierda se angosta a un riel de
+   solo íconos -- .nav-item-text/.nav-chevron se ocultan (no hay lugar ni sentido para el
+   texto ni para desplegar hijos ahí mismo, ver handleCollapsedClick en Sidebar.jsx), cada
+   fila centra un ícono más grande, y el logo (.brand) no se toca -- ni tamaño ni padding
+   cambian entre colapsado/expandido, solo el ancho de la columna a su alrededor. */
+.app-shell.collapsed {
+  grid-template-columns: 72px 1fr;
+}
+
+.sidebar.collapsed .nav-item-text,
+.sidebar.collapsed .nav-chevron {
+  display: none;
+}
+
+.sidebar.collapsed .sidebar-scroll {
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+.sidebar.collapsed .nav-item {
+  justify-content: center;
+  padding: 8px 2px;
+}
+
+.sidebar.collapsed .nav-item .nav-icon {
+  width: 40px;
+  height: 40px;
+}
+
+.sidebar-scroll {
+  grid-area: nav;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-gutter: stable;
+  padding: 0 18px 28px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.35) transparent;
+  /* #sidebarSiempreOscuro: degradé fijo, no var(--color-ink) -- el panel del menú se
+     mantiene con esta misma paleta oscura sea cual sea el tema de la app (ver #modoOscuro
+     en index.css), por eso va con el hex literal en vez del token, que sí cambia en modo
+     oscuro. */
+  background: linear-gradient(180deg, #33475a 0%, #2d3f4e 100%);
+  border-right: 1px solid var(--color-border-strong);
+}
+
+.sidebar-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.sidebar-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.35);
+  border-radius: 4px;
+}
+
+.sidebar-scroll > .nav-item.menu-root {
+  margin-top: 8px;
+}
+
+.brand-mark {
+  width: 50px;
+  height: 26px;
+  flex-shrink: 0;
+  border-radius: 0;
+  /* #logoConTransparencia: logo.webp tiene canal alpha real (el isologo es el único trazo
+     opaco, en el azul de marca) -- no hace falta un fondo blanco de respaldo, y ponerle uno
+     fijo (--color-white, literal, no cambia con el tema) dejaba un cuadro blanco alrededor
+     del logo en modo oscuro. Sin background-color, se ve bien sobre cualquier fondo. */
+  /* #recorteLogo: logo.webp ya viene recortado al isologo (sin margen extra alrededor),
+     así que se escala completo con "contain" en vez de recortar un fragmento a mano --
+     si el archivo cambia de tamaño/proporción de nuevo, esto sigue centrándolo solo. */
+  background-image: url('/logo.webp');
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
+}
+
+.brand-mark img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-mist);
+}
+
+.brand h2,
+.header-bar h1,
+.panel h3,
+.panel h4 {
+  margin: 0;
+}
+
+.header-bar h1 {
+  /* #alinearTituloConToolbar: el line-height por defecto del h1 (1.5x el font-size) deja
+     más aire abajo del texto que arriba, así que el título quedaba visualmente más bajo
+     que los botones de la toolbar aunque las cajas de ambos ya estén centradas entre sí. */
+  line-height: 1;
+}
+
+.brand h2 {
+  color: var(--color-white);
+}
+
+.nav {
+  display: grid;
+  gap: 10px;
+}
+
+.nav-group {
+  display: grid;
+  gap: 10px;
+}
+
+/* #jerarquiaMasNotoria: nivel 1 (Formularios, Configuración...) vive en .nav -- .subnav es
+   todo lo que cuelga de un item de nivel 1, sea hijo directo o nieto (adentro de un
+   subgrupo, ver #tercerNivelDeMenu). Sin línea guía a la izquierda -- solo el sangrado
+   (mismo salto en cada nivel, se compone con .subnav-nested más abajo) marca la jerarquía. */
+.subnav {
+  display: grid;
+  gap: 7px;
+  padding-left: 34px;
+}
+
+.subnav-item {
+  width: 100%;
+  text-align: left;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--color-mist);
+  font: inherit;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.subnav-item.active {
+  background: rgba(65, 103, 153, 0.4);
+  color: var(--color-white);
+  font-weight: 600;
+}
+
+.subnav-item:hover:not(.active) {
+  background: rgba(65, 103, 153, 0.2);
+}
+
+/* #tercerNivelDeMenu: un subgrupo (ej. "Productos" adentro de Formularios) se ve como
+   cualquier otro ítem del árbol, pero no navega -- solo abre/cierra sus propios hijos. */
+.subnav-item-group {
+  font-weight: 600;
+}
+
+/* .subnav-nested es un .subnav anidado adentro de otro .subnav -- hereda el padding-left/
+   borde de la regla de arriba y le suma el propio, así que el nieto queda 34px más adentro
+   que su subgrupo (68px en total desde el nivel 1) -- mismo salto (34px) en cada nivel, no
+   el mismo total. Antes esto estaba pisado a 0/none pensando que "mismo sangrado" quería
+   decir "misma posición final" -- al revés: dejaba al nieto pegado debajo del subgrupo, sin
+   ningún escalón. */
+.subnav-nested {
+  margin-top: 8px;
+}
+
+.subnav-nested .subnav-item {
+  font-size: 14px;
+}
+
+.nav-item,
+.primary-button,
+.secondary-button,
+.ghost-button {
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 0.2s ease, opacity 0.2s ease, background 0.2s ease;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 10px;
+  text-align: left;
+  padding: 10px 14px;
+  background: transparent;
+  color: var(--color-mist);
+  font: inherit;
+  font-size: 15px;
+}
+
+.nav-item.active {
+  background: rgba(65, 103, 153, 0.4);
+  color: var(--color-white);
+  font-weight: 600;
+}
+
+.nav-item:hover:not(.active) {
+  background: rgba(65, 103, 153, 0.2);
+}
+
+.nav-item-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.nav-icon {
+  flex-shrink: 0;
+}
+
+.nav-chevron {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 10px;
+  font-size: 11px;
+  transition: transform 0.2s ease;
+}
+
+.nav-chevron.open {
+  transform: rotate(90deg);
+}
+
+.main-panel {
+  grid-area: main;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 28px;
+}
+
+/* #tituloFueraDelScroll: el título vive en su propia fila del grid de .app-shell
+   (grid-area: title), no adentro de .main-panel -- antes era sticky adentro del panel con
+   scroll, pero el padding-top de .main-panel (28px) quedaba como una franja sin cubrir
+   arriba del título ya pegado: al scrollear, el contenido de abajo (ej. el encabezado de
+   una card de Reportes) se alcanzaba a ver asomado en esa franja, por encima del título.
+   Sacarlo del todo del contenedor con scroll (mismo criterio que .screen-toolbar/.tab-bar)
+   lo saca de esa cuenta -- nunca hay nada scrolleado que pueda quedar por encima. */
+.header-bar {
+  grid-area: title;
+  display: flex;
+  align-items: center;
+  padding: 16px 28px 14px;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+
+/* #barraDePantalla: franja gris, siempre visible, arriba del título (ver ADR 0036) --
+   propia fila del grid de .app-shell (grid-area: screentoolbar), no un hijo de .main-panel,
+   así que queda fuera del scroll del contenido y no compite por espacio con .header-bar
+   (que sigue con su propio position:sticky para el título). Ocupa de punta a punta la
+   columna "main" (arranca justo donde termina .sidebar-resize-handle), igual que
+   .sidebar-toolbar arriba del todo ocupa las dos columnas. Justo arriba, con su propia fila
+   (grid-area: tabbar), va .tab-bar -- las pestañas quedan encajadas entre esta franja y la
+   barra superior (.sidebar-toolbar), no adentro de .main-panel. */
+.screen-toolbar {
+  grid-area: screentoolbar;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0px 24px;
+  background: var(--color-toolbar-bg);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.screen-toolbar-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--color-ink);
+  cursor: pointer;
+}
+
+.screen-toolbar-button:hover:not(:disabled) {
+  background: var(--color-surface);
+  color: var(--color-primary);
+}
+
+.screen-toolbar-button.active {
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+
+.screen-toolbar-button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* #botonCargarComoFlecha: el botón "Cargar" de Integración ERP pasa a ser solo "->", con el
+   ancho justo del texto de la flecha en vez del padding horizontal ancho habitual de
+   .secondary-button. */
+.icon-width-button {
+  padding-left: 12px;
+  padding-right: 12px;
+  min-width: 0;
+  flex-shrink: 0;
+  justify-self: start;
+}
+
+.primary-button,
+.secondary-button,
+.ghost-button {
+  padding: 11px 18px;
+  font-weight: 600;
+}
+
+.primary-button {
+  background: var(--color-primary);
+  color: var(--color-white);
+}
+
+.secondary-button {
+  background: var(--color-surface-muted);
+  color: var(--color-ink);
+}
+
+.ghost-button {
+  background: transparent;
+  border: 1px solid var(--color-border-strong);
+  color: var(--color-ink);
+}
+
+button:hover {
+  transform: translateY(-1px);
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.content-grid,
+.admin-grid,
+.docs-grid {
+  display: grid;
+  gap: 22px;
+}
+
+.content-grid {
+  grid-template-columns: 1.5fr 1fr;
+}
+
+.admin-grid {
+  grid-template-columns: repeat(2, minmax(280px, 1fr));
+}
+
+.docs-grid {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.docs-layout {
+  display: grid;
+  gap: 24px;
+}
+
+.panel {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 18px;
+  padding: 22px;
+  box-shadow: 0 12px 30px rgba(45, 63, 78, 0.08);
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.toggle-row {
+  display: flex;
+  gap: 10px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(160px, 1fr));
+  gap: 16px;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: var(--color-ink);
+  font-size: 13px;
+}
+
+input {
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 14px;
+}
+
+.full-span {
+  grid-column: 1 / -1;
+}
+
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  flex-direction: row !important;
+  gap: 10px;
+  min-height: 44px;
+}
+
+.checkbox-row input {
+  width: 18px;
+  height: 18px;
+}
+
+.response-panel pre,
+.status-box pre,
+.panel pre {
+  margin: 0;
+  background: var(--color-surface-muted);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 16px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.5;
+  color: var(--color-ink);
+  min-height: 200px;
+  overflow: auto;
+}
+
+.alert {
+  padding: 12px 16px;
+  border-radius: 10px;
+  margin-bottom: 18px;
+  font-size: 14px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.6;
+}
+
+.alert.error {
+  background: rgba(185, 28, 28, 0.08);
+  border: 1px solid rgba(185, 28, 28, 0.3);
+  color: #9c1c1c;
+}
+
+.alert.success {
+  background: rgba(21, 128, 61, 0.08);
+  border: 1px solid rgba(21, 128, 61, 0.3);
+  color: #15803d;
+}
+
+.result-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.small-button {
+  padding: 8px 12px;
+  font-size: 12px;
+}
+
+.detail-page {
+  display: grid;
+  gap: 20px;
+}
+
+.detail-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.inline-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+.metric-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.metric-card span {
+  color: var(--color-text-muted);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.metric-card strong {
+  font-size: 1.1rem;
+  color: var(--color-ink);
+}
+
+.detail-body {
+  display: grid;
+  gap: 10px;
+}
+
+.detail-body p {
+  margin: 0;
+  color: var(--color-ink);
+}
+
+.detail-empty {
+  text-align: center;
+}
+
+.detail-empty p {
+  margin: 12px 0 18px;
+  color: var(--color-ink);
+}
+
+.validation-box {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.validation-box span {
+  background: rgba(185, 28, 28, 0.08);
+  color: #9c1c1c;
+  border: 1px solid rgba(185, 28, 28, 0.3);
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 12px;
+}
+
+.mini-form {
+  display: grid;
+  align-content: start;
+  gap: 14px;
+  max-height: calc(100vh - 340px);
+  overflow-y: auto;
+  padding-right: 4px;
+  border: 0;
+  margin: 0;
+  padding-left: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  min-width: 0;
+}
+
+/* #camposEnFilaSegunAncho: variante de .mini-form solo para los ABMs de AdminPanel.jsx
+   (fieldset con las dos clases juntas, "mini-form abm-fields") -- .mini-form solo no se
+   toca, porque también lo usan formularios chicos de una sola columna (login, ERP, cuentas
+   ML, etc.) donde ese layout sigue siendo el correcto. Acá es una columna de filas
+   (.field-row) agrupadas a mano por lógica del formulario (ej. en Producto: Empresa sola,
+   después SKU+Título, después Categoría ID+Marca+Modelo, después Estado) -- no un flex-wrap
+   plano que salta de renglón solo según el ancho disponible, porque eso agrupa campos que no
+   tienen relación entre sí solo porque "entraban" en la misma fila. Cada campo adentro de
+   una fila lleva su propio ancho fijo (.field-sm/.field-md/.field-lg en el <label>), elegido
+   a mano según qué tipo de dato guarda, no estirado a lo ancho de la tarjeta. */
+.mini-form.abm-fields {
+  display: flex;
+  flex-direction: column;
+  align-content: start;
+  gap: 16px;
+}
+
+.field-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.field-sm,
+.field-md,
+.field-lg {
+  flex-shrink: 0;
+}
+
+.field-sm {
+  width: 140px;
+}
+
+.field-md {
+  width: 220px;
+}
+
+.field-lg {
+  width: 360px;
+}
+
+/* #camposApiladosEnMobile: en desktop cada campo lleva su ancho fijo (140/220/360px) para
+   que varios entren en la misma fila (ver #camposEnFilaSegunAncho); en mobile la tarjeta del
+   formulario mide bastante menos que 360px, así que un .field-lg sin tope no se achicaba --
+   forzaba TODA la página a desbordar hacia los costados en vez de quedarse contenido en su
+   tarjeta (mismo síntoma que #headerNoEmpujaLaPaginaEnMobile más abajo, para Reportes).
+   max-width:100% deja que cada campo ocupe todo el ancho disponible y se apile uno debajo
+   del otro (mismo criterio que .content-grid/.admin-grid en este mismo media query) -- solo
+   un tope, no reemplaza el ancho de diseño de desktop. */
+@media (max-width: 980px) {
+  .field-sm,
+  .field-md,
+  .field-lg {
+    max-width: 100%;
+    flex-grow: 1;
+  }
+}
+
+/* #integracionErp: pantalla de conexión/mapeo con el ERP del cliente. */
+.erp-panel-subtitle {
+  margin: 0 0 20px;
+  color: var(--color-text-muted);
+  font-size: 14px;
+}
+
+.erp-integracion-panel .erp-empresa-form {
+  grid-template-columns: 200px auto;
+  align-items: end;
+  max-height: none;
+  overflow: visible;
+}
+
+.erp-integracion-panel fieldset.mini-form {
+  max-height: none;
+  overflow: visible;
+  margin-top: 20px;
+  padding-top: 8px;
+  border-top: 1px solid var(--color-border);
+}
+
+.erp-integracion-panel fieldset.mini-form legend {
+  font-weight: 600;
+  color: var(--color-ink);
+  padding: 0 0 8px;
+}
+
+.competidores-manual-panel {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border);
+}
+
+.competidores-manual-panel h4 {
+  margin: 0 0 4px;
+}
+
+/* #grillaTipoExcel: a diferencia de .data-table de Reportes (que solo separa filas con un
+   borde inferior), esta grilla necesita leerse como una planilla real -- cuadrícula completa
+   (cada celda con los cuatro bordes, no solo abajo), esquinas rectas (nada de border-radius,
+   ni en la grilla ni en nada que viva adentro de una celda -- inputs, autocomplete, botones)
+   y compacta (fuente e interlineado chicos). Al mismo tiempo la grilla tiene un ancho mínimo
+   mayor al de su contenedor visible, así en mobile se scrollea horizontal en vez de achicar
+   las columnas hasta hacerlas ilegibles -- clave para que el desplegable de Moneda (la
+   "lupita" del autocomplete) tenga lugar para mostrar algo como "ARS — Peso Argentino" sin
+   cortarse, ya que ese desplegable mide lo mismo que su columna. Sigue usando los mismos
+   tokens de color que .data-table (var(--color-border), var(--color-primary-softer), etc.),
+   no colores nuevos. */
+.competidores-grid-container {
+  max-height: none;
+  border-radius: 0;
+}
+
+.competidores-grid {
+  border: 1px solid var(--color-border-strong);
+  min-width: 720px;
+  font-size: 12px;
+}
+
+.competidores-grid th,
+.competidores-grid td {
+  border: 1px solid var(--color-border);
+  padding: 4px 8px;
+}
+
+.competidores-grid th:nth-child(1),
+.competidores-grid td:nth-child(1) {
+  min-width: 150px;
+}
+
+.competidores-grid th:nth-child(2),
+.competidores-grid td:nth-child(2) {
+  min-width: 200px;
+}
+
+.competidores-grid th:nth-child(3),
+.competidores-grid td:nth-child(3) {
+  min-width: 170px;
+}
+
+.competidores-grid th:nth-child(4),
+.competidores-grid td:nth-child(4) {
+  min-width: 110px;
+}
+
+.competidores-grid th:last-child {
+  min-width: 190px;
+}
+
+.competidores-grid td {
+  white-space: normal;
+  vertical-align: middle;
+}
+
+.competidores-grid td.competidores-celda-numero {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.competidores-grid td.competidores-celda-numero input {
+  text-align: right;
+}
+
+.competidores-grid-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--color-primary);
+  text-decoration: underline;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.competidores-grid-link:hover {
+  color: var(--color-ink);
+}
+
+/* Las celdas de la fila de alta se ven y se completan como celdas de planilla: el input
+   ocupa toda la celda, sin su propio recuadro, para que el borde de la celda alcance --
+   y nada de lo que viva en una celda (input, autocomplete, botón) queda redondeado: una
+   planilla de verdad no tiene esquinas curvas. */
+.competidores-grid td input,
+.competidores-grid td .fk-autocomplete {
+  width: 100%;
+}
+
+.competidores-grid input,
+.competidores-grid button,
+.competidores-grid .fk-autocomplete-panel,
+.competidores-grid .fk-autocomplete-item {
+  border-radius: 0;
+}
+
+.competidores-fila-nueva td {
+  background: var(--color-surface-muted);
+  padding: 3px 4px;
+}
+
+.competidores-fila-nueva input {
+  border: none;
+  background: transparent;
+  padding: 5px 6px;
+  font-size: 12px;
+}
+
+.competidores-fila-nueva input:focus {
+  outline: 2px solid var(--color-primary-soft);
+  outline-offset: -2px;
+  background: var(--color-surface);
+}
+
+.competidores-acciones-celda {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.competidores-editar-precio {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.competidores-editar-precio input {
+  width: 90px;
+}
+
+.cola-ml-aprobacion-panel .panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.cola-ml-lista {
+  display: grid;
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.cola-ml-item {
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.cola-ml-item-header {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 10px;
+}
+
+.cola-ml-item-header span {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.cola-ml-item-precios {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.cola-ml-flecha {
+  color: var(--color-text-muted);
+}
+
+.cola-ml-precio-sube {
+  color: #0a6b3f;
+  font-weight: 600;
+}
+
+.cola-ml-precio-baja {
+  color: #9c1c1c;
+  font-weight: 600;
+}
+
+.cola-ml-motivo {
+  margin: 0 0 8px;
+  font-size: 13px;
+  color: var(--color-ink);
+}
+
+.cola-ml-competidor {
+  margin: 0 0 12px;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.cola-ml-competidor a {
+  color: var(--color-primary);
+}
+
+.cola-ml-item-acciones {
+  display: flex;
+  gap: 10px;
+}
+
+.erp-api-key-hint {
+  font-size: 13px;
+  color: var(--color-primary);
+  background: var(--color-primary-softer);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.mini-form input:disabled,
+.mini-form select:disabled,
+.mini-form textarea:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: var(--color-surface-muted);
+}
+
+.status-box {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.endpoint-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.functional-docs {
+  display: grid;
+  gap: 16px;
+}
+
+.functional-docs-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.doc-article {
+  display: grid;
+  gap: 18px;
+}
+
+.doc-section {
+  border-top: 1px solid var(--color-border);
+  padding-top: 16px;
+}
+
+.doc-section:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+
+.doc-section h4 {
+  margin-bottom: 10px;
+  color: var(--color-ink);
+  font-size: 1.05rem;
+}
+
+.doc-section p,
+.doc-section li {
+  color: var(--color-ink);
+  line-height: 1.7;
+  font-size: 14px;
+}
+
+.doc-section ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+/* #capturaEnLaGuia: la imagen de ejemplo de una sección de la guía (ver renderDocSection en
+   App.jsx) -- borde y sombra suave para que se lea como una captura de pantalla real y no
+   como una imagen suelta, con un ancho tope para que no domine sobre el texto en pantallas
+   grandes. La leyenda explica qué se ve, no repite el título de la sección. */
+.doc-section-image {
+  margin: 14px 0 0;
+  max-width: 640px;
+}
+
+.doc-section-image img {
+  width: 100%;
+  display: block;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(45, 63, 78, 0.12);
+}
+
+.doc-section-image figcaption {
+  margin-top: 8px;
+  color: var(--color-text-muted);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+/* #descargarComoPdf: mismo botón secundario que ya se usa en el resto de la app (ver
+   .secondary-button), solo con margin-left:auto por si algún día el header de la guía
+   llevara más de un elemento a la izquierda además del título. */
+.doc-download-pdf {
+  flex-shrink: 0;
+}
+
+/* #imprimirSoloElContenido: al usar el botón "Descargar en PDF" (window.print(), ver
+   renderDescargarPdfButton en App.jsx) o Ctrl+P directo, el menú lateral, las pestañas y las
+   franjas de herramientas no aportan nada al PDF -- se esconden para que quede solo el
+   contenido de la página. .app-shell vuelve a un layout de una sola columna/fila (display
+   block simple) para que .main-panel no quede recortado a la altura fija de 100vh que usa
+   en pantalla, y su padding/overflow propios se resetean para que el contenido completo
+   fluya en las hojas impresas en vez de cortarse en un scroll invisible. */
+@media print {
+  .brand,
+  .sidebar-toolbar,
+  .sidebar-scroll,
+  .tab-bar,
+  .screen-toolbar,
+  .doc-download-pdf {
+    display: none !important;
+  }
+
+  .app-shell {
+    display: block;
+    height: auto;
+  }
+
+  .main-panel {
+    overflow: visible;
+    padding: 0;
+  }
+
+  .doc-section-image {
+    break-inside: avoid;
+  }
+}
+
+/* Admin Panel Tabs */
+.admin-panel-container {
+  display: grid;
+  gap: 20px;
+}
+
+.admin-tabs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(140px, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.admin-tab {
+  padding: 12px 14px;
+  border: 1px solid var(--color-border-strong);
+  background: transparent;
+  color: var(--color-ink);
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.admin-tab:hover {
+  background: var(--color-surface-muted);
+  border-color: var(--color-primary);
+}
+
+.admin-tab.active {
+  background: var(--color-primary-soft);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  box-shadow: 0 0 12px rgba(65, 103, 153, 0.18);
+}
+
+/* #barraDePestañas: TabBar.jsx, la fila de pestañas abiertas -- propia fila del grid de
+   .app-shell (grid-area: tabbar), encajada entre la barra superior (.sidebar-toolbar) y la
+   franja de herramientas (.screen-toolbar). Forma de pestaña de navegador: solo esquinas
+   superiores redondeadas, sin borde propio -- la activa comparte el mismo gris que
+   .screen-toolbar y no lleva borde inferior, para que parezca "soldada" a esa franja; las
+   inactivas quedan más claras/apagadas, como si estuvieran detrás. Padding ajustado (poco
+   aire entre la letra y el borde) para que no se vean voluminosas. */
+.tab-bar {
+  grid-area: tabbar;
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 6px 24px 0;
+  background: var(--color-surface);
+}
+
+.tab-bar-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 6px 4px 10px;
+  border: none;
+  background: var(--color-surface-muted);
+  color: var(--color-text-muted);
+  border-radius: 6px 6px 0 0;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  transition: background 0.15s ease, color 0.15s ease;
+  white-space: nowrap;
+}
+
+.tab-bar-item:hover:not(.active) {
+  background: var(--color-border);
+  color: var(--color-ink);
+}
+
+.tab-bar-item.active {
+  background: var(--color-toolbar-bg);
+  color: var(--color-ink);
+}
+
+.tab-bar-item-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  font-size: 11px;
+  line-height: 1;
+  color: inherit;
+  opacity: 0.6;
+}
+
+.tab-bar-item-close:hover {
+  opacity: 1;
+  background: rgba(65, 103, 153, 0.25);
+}
+
+/* #contenidoLlegaAlPiso: .abm-layout usa align-items:start (a propósito -- no quiere que
+   Filtros y el formulario se fuercen la altura entre sí, ver #panelDeFiltrosFueraDeLaTarjeta
+   en .abm-list-column), así que por default .admin-content queda tan alto como su propio
+   contenido, mucho más bajo que Filtros (que sí llega hasta el piso). align-self:stretch
+   solo en este ítem lo hace estirarse hasta el alto real de la fila -- que ya lo define
+   Filtros con su --main-panel-height, no hace falta que .admin-content sepa ese número
+   también. display:flex + .admin-form con flex:1 (ver más abajo) es lo que hace que el
+   borde de la tarjeta en sí llegue hasta abajo (no solo el wrapper transparente) -- puede
+   quedar espacio vacío adentro de la tarjeta, a propósito. */
+.admin-content {
+  width: 100%;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+}
+
+/* #formularioOcupaElAncho: antes tenía un tope fijo (max-width:600px) que dejaba un
+   montón de superficie vacía a la derecha en pantallas anchas -- ahora ocupa todo el ancho
+   que le da la grilla maestro-detalle (.abm-layout, la columna que sobra después de
+   Filtros). Los campos en sí NO se estiran con la tarjeta -- ver .mini-form/.field-sm/
+   .field-md/.field-lg más abajo, que le ponen a cada campo su propio ancho fijo según qué
+   tipo de dato guarda, y los deja fluir en varias columnas en vez de uno abajo del otro. */
+.admin-form {
+  width: 100%;
+  flex: 1;
+}
+
+.admin-result {
+  grid-column: 1 / -1;
+}
+
+/* #vistaMaestroDetalle: listado liviano + formulario de cada ABM lado a lado. El ancho de
+   la primera columna es --abm-list-column-width (ver AbmColumnResizeHandle.jsx) -- una sola
+   variable CSS global, así que arrastrar la manija en cualquier pestaña de Formularios o en
+   Reportes (.reports-layout replica este mismo grid) cambia el ancho en todas a la vez, igual
+   criterio que --sidebar-width. */
+.abm-layout {
+  display: grid;
+  grid-template-columns: var(--abm-list-column-width, 340px) minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+/* #frameOcupaAnchoDeLaToolbar: con los filtros colapsados, la columna de búsqueda no deja
+   ningún resto (ni riel angosto ni gap) -- el frame del formulario/reporte pasa a ocupar
+   todo el ancho, el mismo que la Barra de pantalla de arriba (ver ADR 0036), ya que el
+   ícono que colapsa/expande vive ahí y no en esta columna. */
+.abm-layout.collapsed-search {
+  grid-template-columns: 0fr 1fr;
+  column-gap: 0;
+}
+
+/* #panelDeFiltrosFueraDeLaTarjeta: Filtros (Formularios y Reportes) pasó de tarjeta
+   redondeada flotando en el padding de .main-panel a una franja propia, pegada de verdad al
+   vértice entre el título y el sidebar -- margin negativo (-28px en las tres puntas donde
+   .main-panel le pone padding: arriba, abajo y a la izquierda; a la derecha no, ahí sigue
+   el gap normal de la grilla contra el formulario/reporte) la corre hasta los bordes reales
+   del área de contenido. Para el alto, un height:100% (via la cadena de grids hasta
+   .main-panel) no se resolvía como "definido" en la práctica -- terminaba usando el alto
+   intrínseco del contenido en vez del disponible real. En cambio, --main-panel-height es el
+   alto de .main-panel medido con ResizeObserver (ver mainPanelRef en App.jsx, mismo criterio
+   que --sidebar-width) y puesto como variable CSS en el propio elemento -- por eso funciona
+   sin importar cuánto midan la barra de herramientas o el título arriba, ni si cambian. Con
+   ese alto exacto más el margin negativo, la franja termina ocupando el alto completo de
+   .main-panel, de punta a punta, en vez de un tope fijo tipo calc(100vh - 200px) (el número
+   mágico anterior, que ya había quedado desactualizado). Sticky sigue haciendo su trabajo de
+   siempre: al scrollear un formulario/reporte más largo que la pantalla, esta franja se
+   queda quieta en vez de arrastrarse con el resto. El fondo propio (mismo gris que las demás
+   franjas de herramientas) y el borde derecho son justamente lo que la hace leer como su
+   propia sección, no como una tarjeta más del contenido -- por eso .panel (ver
+   #estructuraFiltros más abajo) se desarma acá adentro en vez de quedar como una tarjeta
+   anidada. #columnaLateralColapsable: todo su contenido se oculta cuando el layout padre
+   tiene .collapsed-search (ver #frameOcupaAnchoDeLaToolbar), controlado desde la Barra de
+   pantalla global, no desde un botón propio de la columna. */
+.abm-list-column {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+  align-content: start;
+  position: sticky;
+  top: 0;
+  height: var(--main-panel-height, calc(100vh - 200px));
+  margin: -28px 0 -28px -28px;
+  padding: 20px 16px;
+  background: var(--color-toolbar-bg);
+  border-right: 1px solid var(--color-border-strong);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* #anchoColumnaRedimensionable: manija vertical pegada al borde derecho de la columna (ver
+   AbmColumnResizeHandle.jsx) -- position:absolute la saca del grid de .abm-list-column (si
+   no, al ser un segundo hijo quedaría como una fila de grid extra en vez de superpuesta), y
+   al ser .abm-list-column position:sticky (que también cuenta como "positioned" para sus
+   descendientes), la manija sigue el mismo scroll sticky que el resto de la columna sin
+   necesitar su propio position:fixed. Mismo lenguaje visual que .sidebar-resize-handle:
+   invisible en reposo, se resalta con el color de acento al pasar el mouse. */
+.abm-column-resize-handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: -3px;
+  width: 6px;
+  cursor: col-resize;
+  z-index: 5;
+  background: transparent;
+}
+
+.abm-column-resize-handle:hover,
+.abm-column-resize-handle:active {
+  background: var(--color-primary-soft);
+}
+
+/* #mitadYmitadAltura: solo en Formularios (AbmRecordList, identificable porque trae
+   .abm-list-registros -- Reportes no) la fila de .panel.abm-list necesita estirarse hasta
+   ocupar el alto completo de la franja para poder repartirlo 50/50 entre Filtros y
+   Registros (ver #mitadYmitad más abajo). En Reportes esa franja solo tiene Filtros, así
+   que se deja con su alto de contenido de siempre (align-content:start de arriba). */
+.abm-list-column:has(.abm-list-registros) {
+  align-content: stretch;
+}
+
+/* #estructuraFiltros: adentro de la franja, la tarjeta ".panel" de siempre se aplana --
+   sin esto quedaría una tarjeta redondeada anidada dentro de la franja, dos bordes en vez
+   de uno. Solo pisa el look (fondo/borde/padding), no el grid interno de .abm-list. */
+.abm-list-column .panel {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+}
+
+.collapsed-search .abm-list-column {
+  padding: 0;
+  border-right: none;
+  margin: -28px 0;
+}
+
+.collapsed-search .side-column-body {
+  display: none;
+}
+
+/* #sinManijaColapsada: con Filtros colapsado la columna pasa a 0fr (ver #frameOcupaAnchoDeLaToolbar)
+   -- sin esto la manija de ancho quedaba flotando pegada al borde izquierdo, redimensionando
+   una columna que ya no se ve. */
+.collapsed-search .abm-column-resize-handle {
+  display: none;
+}
+
+/* #grid-blowout: el ancho real de esta columna ya lo contiene el minmax(0, 1fr) de
+   .abm-list-column (el grid de afuera) -- lo mismo que .report-filters-grid -- así que acá
+   adentro alcanza con flex-direction:column; .abm-list-table-wrapper sigue haciendo scroll
+   horizontal propio en vez de desbordar la columna. */
+.abm-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: 100%;
+}
+
+.abm-list h4 {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+/* #mitadYmitad: Filtros y Registros arrancan 50/50 en la columna lateral sin importar
+   cuánto contenido tenga cada uno -- si Filtros tiene pocos campos, igual ocupa su mitad
+   (con scroll propio si algún día tuviera más de la cuenta); si Registros trae un solo
+   resultado, la tarjeta de la tabla igual se estira hasta el borde inferior de su mitad en
+   vez de encogerse al alto de esa única fila. El reparto real lo da flexGrow inline (ver
+   filtrosRatio en AbmRecordList.jsx) -- acá solo el flex-shrink/basis compartidos y el resto
+   del layout de cada mitad. */
+.abm-list-filtros {
+  flex: 1 1 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+}
+
+/* #lineaDivisoria: a diferencia de .sidebar-resize-handle (invisible en reposo), esta
+   línea se ve siempre -- un trazo fino centrado en la franja de 7px de agarre, para que se
+   note de entrada que ahí se puede arrastrar sin depender de pasar el mouse por encima. Al
+   pasar el mouse (o arrastrar), tanto el trazo como el fondo de la franja se resaltan con el
+   color de acento, mismo lenguaje visual que el resto de "esto es interactivo" en la app. No
+   hace falta position:fixed acá porque ya vive en el flujo normal, entre los dos flex
+   children que redimensiona. flex-shrink:0 para que nunca se achique por debajo de su alto
+   fijo aunque las mitades tengan poco espacio. */
+.abm-list-divider {
+  flex-shrink: 0;
+  height: 7px;
+  margin: -3px 0;
+  cursor: row-resize;
+  background: transparent;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+}
+
+.abm-list-divider::after {
+  content: '';
+  width: 100%;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--color-text-muted);
+}
+
+.abm-list-divider:hover,
+.abm-list-divider:active {
+  background: var(--color-primary-soft);
+}
+
+.abm-list-divider:hover::after,
+.abm-list-divider:active::after {
+  background: var(--color-primary);
+}
+
+.abm-list-registros {
+  flex: 1 1 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.abm-list-search {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  padding: 12px;
+  background: var(--color-surface-muted);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  flex: 1;
+}
+
+.abm-list-search-field {
+  display: grid;
+  gap: 4px;
+}
+
+.abm-list-search-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.abm-list-search-input {
+  width: 100%;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 13px;
+  box-sizing: border-box;
+}
+
+.abm-list-search-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.abm-list-body {
+  flex: 1 1 0;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+}
+
+.abm-list-empty {
+  flex: 1;
+  min-height: 120px;
+  padding: 16px 8px;
+  color: var(--color-text-muted);
+  font-size: 13px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* #registrosEstiloExcel: la grilla de Registros imita una planilla -- encabezado #33475a
+   con letras blancas (pegado arriba, sticky, mientras se scrollea la lista, siempre oscuro
+   sea cual sea el tema) y filas que alternan blanco / var(--color-toolbar-bg), igual que
+   el resaltado de filas de Excel. */
+.abm-list-table-wrapper {
+  flex: 1;
+  min-height: 120px;
+  overflow: auto;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-surface);
+}
+
+.abm-list-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+/* #divisionDeCeldas: además de la línea horizontal entre filas (border-top en td), un
+   borde vertical bien sutil entre columnas -- el mismo tono que ya se usa para el resto de
+   los bordes de la app (var(--color-border)), no un gris marcado tipo hoja de cálculo. */
+.abm-list-table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #33475a;
+  color: var(--color-white);
+  text-align: left;
+  padding: 6px 9px;
+  font-weight: 600;
+  white-space: nowrap;
+  border-right: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.abm-list-table td {
+  padding: 6px 9px;
+  color: var(--color-ink);
+  white-space: nowrap;
+  border-top: 1px solid var(--color-border);
+  border-right: 1px solid var(--color-border);
+}
+
+.abm-list-table th:last-child,
+.abm-list-table td:last-child {
+  border-right: none;
+}
+
+.abm-list-table-row {
+  cursor: pointer;
+}
+
+.abm-list-table-row:nth-child(odd) {
+  background: var(--color-surface);
+}
+
+.abm-list-table-row:nth-child(even) {
+  background: var(--color-toolbar-bg);
+}
+
+.abm-list-table-row:hover {
+  background: var(--color-primary-softer);
+}
+
+.abm-list-table-row.active {
+  background: var(--color-primary-soft);
+  box-shadow: inset 3px 0 0 var(--color-primary);
+}
+
+.abm-list-table-row.active td {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.abm-list-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+/* #columnaLateralApiladaEnMobile: en mobile, la lista/filtros y el formulario/reporte no
+   entran lado a lado (era la columna fija de 340px la que rompía el layout) -- se apilan en
+   una sola columna, lista/filtros arriba. El ícono de la carpetita sigue mostrando/ocultando
+   ese bloque igual que en desktop (.side-column-body), pero ya no hace falta el truco de
+   0fr para "colapsarlo" -- se vuelve a 1fr sin importar el estado, así el bloque oculto no
+   deja una columna angosta fantasma al lado del formulario. */
+@media (max-width: 980px) {
+  .abm-layout,
+  .abm-layout.collapsed-search {
+    grid-template-columns: 1fr;
+    column-gap: 20px;
+  }
+
+  /* #sinAlturaFijaEnMobile: en desktop, .abm-list-column mide var(--main-panel-height) --
+     un alto medido con ResizeObserver sobre .main-panel (ver App.jsx). En mobile,
+     .main-panel pasa a height:auto (ver más abajo, #sinResizeEnMobile), o sea que SU alto
+     depende de lo que midan sus hijos -- entre ellos, esta misma columna. Dejarla leyendo
+     esa variable acá creaba una retroalimentación circular: la columna medía el alto de
+     .main-panel, .main-panel medía el alto (ya agrandado) de la columna, ResizeObserver
+     disparaba de nuevo con ese valor más grande, y así en bucle -- terminaba en una columna
+     de casi 800.000px de alto (bug real, visto en vivo), con Filtros/Registros técnicamente
+     ahí pero a un scroll impracticable de distancia. height:auto corta el circuito: la
+     columna pasa a medir lo que su propio contenido necesita, ni más ni menos. */
+  .abm-list-column {
+    position: static;
+    height: auto;
+  }
+
+  /* #sinFlexBasisCeroEnMobile: .abm-list-filtros/.abm-list-registros usan flex:1 1 0 +
+     min-height:0 en desktop para poder repartirse el alto FIJO de .abm-list-column mitad y
+     mitad (ver #mitadYmitad) -- con flex-basis:0 y min-height:0 juntos, el "tamaño
+     hipotético" de cada uno para el cálculo de alto automático del contenedor es 0 (así lo
+     define flexbox: hypothetical main size = clamp(flex-basis, min, max)), sin importar
+     cuánto contenido tengan. Mientras .abm-list-column medía un alto fijo eso no se notaba
+     (había alto de sobra para repartir), pero apenas pasa a height:auto (arriba) ese mismo
+     cálculo colapsa TODA la cadena a un alto casi nulo -- el contenido seguía pintándose,
+     pero desbordado fuera de una caja de ~0px (bug real, visto en vivo). flex:initial vuelve
+     a un flex-basis:auto (el tamaño de contenido, no 0) y min-height:auto restaura el piso
+     automático normal -- cada mitad pasa a medir lo que su contenido necesita, apilada
+     debajo de la otra, en vez de repartirse un alto que en mobile ya no existe. */
+  .abm-list-filtros,
+  .abm-list-registros {
+    flex: initial;
+    min-height: auto;
+  }
+
+  /* #divisorSoloDesktop: igual que .sidebar-resize-handle -- el arrastre solo escucha mouse,
+     no touch, así que en mobile la manija no serviría para nada (ver #divisorArrastrable en
+     AbmRecordList.jsx, y #anchoColumnaRedimensionable en AbmColumnResizeHandle.jsx para la
+     manija de ancho). display:none las saca del flujo, con lo que el gap:12px de .abm-list
+     vuelve a aplicarse directo entre Filtros y Registros, igual que antes de que existieran. */
+  .abm-list-divider,
+  .abm-column-resize-handle {
+    display: none;
+  }
+}
+
+/* #dialogoEliminacion: modal propio, reemplaza window.confirm(). */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(45, 63, 78, 0.45);
+  display: grid;
+  place-items: center;
+  z-index: 20;
+  padding: 20px;
+}
+
+.modal-card {
+  background: var(--color-surface);
+  border-radius: 16px;
+  padding: 24px;
+  max-width: 420px;
+  width: 100%;
+  box-shadow: 0 20px 50px rgba(45, 63, 78, 0.25);
+}
+
+.modal-card h4 {
+  margin: 0 0 10px;
+}
+
+.modal-card p {
+  margin: 0 0 20px;
+  color: var(--color-ink);
+  line-height: 1.5;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.danger-button {
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  padding: 11px 18px;
+  font-weight: 600;
+  background: #b91c1c;
+  color: var(--color-white);
+}
+
+/* #avisoDeResultado: reemplaza el panel de JSON crudo tras Guardar/Eliminar. */
+.toast {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  box-shadow: 0 12px 30px rgba(45, 63, 78, 0.2);
+  font-size: 14px;
+  z-index: 25;
+  max-width: 360px;
+}
+
+.toast-success {
+  background: #ecfdf3;
+  border: 1px solid rgba(16, 128, 74, 0.3);
+  color: #0a6b3f;
+}
+
+.toast-error {
+  background: rgba(185, 28, 28, 0.08);
+  border: 1px solid rgba(185, 28, 28, 0.3);
+  color: #9c1c1c;
+}
+
+/* #resultadoMixtoSincronizacion: falta este tercer estado -- antes el toast solo distinguía
+   éxito/error, sin forma de señalar "algunos OK, algunos con error" (ver handleMlSincronizar
+   en App.jsx). */
+.toast-warning {
+  background: #fff6d9;
+  border: 1px solid rgba(184, 134, 11, 0.35);
+  color: #8a5a10;
+}
+
+.toast-close {
+  border: none;
+  background: transparent;
+  color: inherit;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+}
+
+/* Form improvements */
+select,
+textarea {
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+select:focus,
+textarea:focus,
+input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-softer);
+}
+
+/* #sacarFlechitasDeNumero: los inputs numéricos no necesitan el spinner nativo del
+   navegador -- se puede seguir escribiendo o pegando un número igual sin él. */
+input[type='number'] {
+  -moz-appearance: textfield;
+}
+
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* #camposNumericosAngostos: un input numérico no necesita el ancho completo del campo --
+   se angosta a ~13 dígitos de ancho (13ch de contenido + el padding horizontal habitual de
+   cada contexto) en los tres lugares donde aparecen campos numéricos: formulario de
+   alta/edición (.mini-form), Filtros de reporte (.report-filter-input) y búsqueda del
+   listado de un ABM (.abm-list-search-input). Los de texto (con o sin FK) no se tocan --
+   siguen ocupando el ancho completo del campo, iguales entre sí. El selector calificado con
+   la clase (no solo [type='number']) es necesario para ganarle en especificidad al
+   width:100% que ya trae cada una de esas clases. */
+.mini-form input[type='number'],
+.abm-list-search-input[type='number'],
+.report-filter-input[type='number'] {
+  width: calc(13ch + 24px);
+}
+
+textarea {
+  resize: vertical;
+  line-height: 1.5;
+}
+
+@media (max-width: 980px) {
+  .admin-tabs {
+    grid-template-columns: repeat(2, minmax(140px, 1fr));
+  }
+}
+
+/* Form hints and field display */
+.form-hint {
+  padding: 8px 12px;
+  background: rgba(180, 120, 20, 0.1);
+  border: 1px solid rgba(180, 120, 20, 0.3);
+  color: #8a5a10;
+  border-radius: 8px;
+  font-size: 12px;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.field-display {
+  padding: 8px 12px;
+  background: var(--color-primary-softer);
+  border: 1px solid var(--color-border);
+  color: var(--color-primary);
+  border-radius: 8px;
+  font-size: 12px;
+  margin-top: -10px;
+  margin-bottom: 8px;
+}
+
+/* #estilosReportes: tabs, filtros, tabla y paginación de los reportes. Los Filtros usan el
+   mismo formato de columna lateral que Formularios (.abm-layout / .abm-list-column,
+   ver #columnaLateralColapsable) -- por eso .reports-layout replica exactamente su grid. */
+.reports-layout {
+  display: grid;
+  grid-template-columns: var(--abm-list-column-width, 340px) minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.reports-layout.collapsed-search {
+  grid-template-columns: 0fr 1fr;
+  column-gap: 0;
+}
+
+/* #ordenEnLaCascada: esta regla tiene que venir DESPUÉS de .reports-layout/.collapsed-search
+   de arriba -- misma especificidad (una sola clase), así que en un empate gana la última en
+   el archivo. El primer intento de este arreglo vivía junto al de .abm-layout (mucho más
+   arriba del archivo, antes de esta definición base), y por eso perdía la cascada en mobile
+   contra grid-template-columns: 340px minmax(0, 1fr), aunque el media query fuera válido. */
+@media (max-width: 980px) {
+  .reports-layout,
+  .reports-layout.collapsed-search {
+    grid-template-columns: 1fr;
+    column-gap: 20px;
+  }
+}
+
+.reports-tabs-wrapper {
+  overflow-x: auto;
+  border-bottom: 1px solid var(--color-border);
+  border-radius: 12px 12px 0 0;
+}
+
+.reports-tabs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 4px;
+  padding: 8px;
+  min-width: max-content;
+}
+
+.report-tab {
+  padding: 10px 12px;
+  border: 1px solid var(--color-border-strong);
+  background: transparent;
+  color: var(--color-ink);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.report-tab:hover {
+  background: var(--color-surface-muted);
+  border-color: var(--color-primary);
+}
+
+.report-tab.active {
+  background: var(--color-primary-soft);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  box-shadow: 0 0 12px rgba(65, 103, 153, 0.18);
+}
+
+.reports-content {
+  width: 100%;
+  display: grid;
+  gap: 20px;
+}
+
+/* #reporteMaestroDetalle: fila de la grilla madre clickeable -- selecciona esa fila y
+   refresca la grilla de detalle de abajo filtrada por su ID (ver ReportsPanel.jsx). */
+.report-row-selectable {
+  cursor: pointer;
+}
+.report-row-selectable:hover {
+  background: var(--color-surface-muted);
+}
+.report-row-selectable.selected {
+  background: var(--color-primary-soft);
+}
+
+/* #filtrosEnColumnaAngosta: antes los filtros vivían en un panel de ancho completo y cada
+   campo pedía un mínimo de 260px (auto-fit). Ahora Filtros vive siempre en la columna
+   lateral angosta (ver .reports-layout) -- ese mínimo de 260px hacía que la grilla interna
+   pidiera más ancho del que la columna tiene (260px con padding incluido), "reventando" el
+   track de .abm-list-column hacia la derecha. Una sola columna elástica evita el problema. */
+.report-filters-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+}
+
+.report-filter-field {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.report-filter-label {
+  color: var(--color-text-muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* #checkDeRangoSinTexto: el checkbox de "Rango" ya no lleva la palabra al lado -- queda
+   pegado a la derecha del control del campo (título en el atributo title/aria-label para
+   quien lo necesite, ej. lectores de pantalla). */
+.range-toggle-checkbox {
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.report-filter-control {
+  display: flex;
+  align-items: start;
+  gap: 8px;
+}
+
+/* #rangoApilado: Desde/Hasta vivían lado a lado (2 columnas de 120px mínimo cada una), lo
+   que necesitaba más ancho del que tiene la columna angosta de Filtros (ver
+   #filtrosEnColumnaAngosta) y hacía que "Hasta" se saliera del cuadro. Apilados en una sola
+   columna entran sin problema. */
+.report-range-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  width: 100%;
+}
+
+.range-field {
+  display: grid;
+  gap: 6px;
+  color: var(--color-text-muted);
+  font-size: 11px;
+}
+
+.report-filter-input {
+  min-height: 38px;
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  padding: 8px 10px;
+  box-sizing: border-box;
+}
+
+/* #autocompleteFkReportes: ver FkAutocompleteInput.jsx. */
+.fk-autocomplete {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+}
+
+/* #lupitaFk: selector calificado (.fk-autocomplete input.fk-search-input) para ganarle en
+   especificidad a la clase que cada contexto le pasa al input (.abm-list-search-input,
+   .report-filter-input, etc.), que ya trae su propio padding en shorthand. El width:100% es
+   necesario acá porque en el formulario de alta/edición (.mini-form) el FkAutocompleteInput
+   se usa SIN ningún className -- sin este ancho propio, el <input> quedaba con el ancho por
+   defecto del navegador (~170px) mientras el ícono se posicionaba relativo al contenedor
+   .fk-autocomplete (100% del campo), y terminaba viéndose "afuera" del cuadro visible. */
+.fk-autocomplete input.fk-search-input {
+  width: 100%;
+  padding-right: 28px;
+}
+
+.fk-autocomplete-search-icon {
+  position: absolute;
+  top: 50%;
+  right: 9px;
+  transform: translateY(-50%);
+  color: var(--color-text-muted);
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+}
+
+/* #lupaEscapaDelScroll: position:fixed con top/left/width calculados en JS (ver
+   FkAutocompleteInput.jsx), no absolute -- así ningún ancestro con su propio scroll (la
+   grilla de Competidores vinculados, con scroll horizontal propio) puede recortarlo. */
+.fk-autocomplete-panel {
+  position: fixed;
+  z-index: 30;
+  max-height: 260px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  padding: 4px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  box-shadow: 0 16px 36px rgba(45, 63, 78, 0.18);
+}
+
+.fk-autocomplete-item {
+  padding: 8px 10px;
+  text-align: left;
+  font-size: 13px;
+  color: var(--color-ink);
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.fk-autocomplete-item:hover {
+  background: var(--color-surface-muted);
+}
+
+.fk-autocomplete-mensaje {
+  padding: 8px 10px;
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.clear-filter-button {
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-surface-muted);
+  color: var(--color-ink);
+  border-radius: 8px;
+  padding: 8px 10px;
+  cursor: pointer;
+}
+
+.filter-chip {
+  border: 1px solid var(--color-primary);
+  border-radius: 999px;
+  padding: 7px 10px;
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  cursor: pointer;
+}
+
+.report-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 16px;
+  color: var(--color-text-muted);
+  font-size: 13px;
+}
+
+.report-panel {
+  display: grid;
+  gap: 16px;
+}
+
+.report-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.report-header h3 {
+  margin: 0;
+}
+
+.endpoint-label {
+  color: var(--color-primary);
+  font-size: 11px;
+  font-family: monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* #headerNoEmpujaLaPaginaEnMobile: .report-header es un flex row (título+endpoint a la
+   izquierda, contador de registros a la derecha) -- por default, un ítem flex no se achica
+   por debajo del ancho de SU contenido (min-width:auto), y el texto del endpoint (GET
+   /api/admin/..., monoespaciado, sin wrap) suele ser más largo que una pantalla de celular.
+   Sin este min-width:0 esa etiqueta empujaba TODA la página hacia los costados en vez de
+   quedarse contenida en su tarjeta -- ver el mismo criterio aplicado a .field-sm/.field-md/
+   .field-lg más abajo, para el mismo síntoma en Formularios. overflow-wrap permite que corte
+   la URL si hace falta en vez de desbordar. */
+@media (max-width: 980px) {
+  .report-header > div {
+    min-width: 0;
+  }
+
+  .endpoint-label {
+    overflow-wrap: break-word;
+  }
+}
+
+.record-count {
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.table-container {
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.data-table thead {
+  border-bottom: 2px solid var(--color-primary);
+}
+
+/* #sticky-th-no-thead: con border-collapse:collapse el fondo puesto en <thead> no pinta de
+   forma confiable como capa opaca, entonces las filas del body se transparentaban al hacer
+   scroll debajo del header y se veían mezcladas con los títulos de columna. Mover el
+   position:sticky al <th> no alcanzaba solo: var(--color-primary-softer) es un rgba() con
+   7% de opacidad (pensado para resaltar sobre blanco, no para tapar contenido), así que
+   seguía dejando pasar el texto de las filas de abajo. La solución es apilar esa misma
+   tinta sobre un fondo blanco opaco en el propio th (dos backgrounds en capas), sin
+   inventar un color nuevo fuera de la paleta.  */
+.data-table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: linear-gradient(var(--color-primary-softer), var(--color-primary-softer)), var(--color-white);
+  padding: 12px 16px;
+  text-align: left;
+  color: var(--color-primary);
+  font-weight: 700;
+  white-space: nowrap;
+  text-transform: capitalize;
+}
+
+.sortable-th {
+  cursor: pointer;
+  user-select: none;
+}
+
+.sortable-th:hover {
+  background: var(--color-primary-soft);
+}
+
+.sort-indicator {
+  color: var(--color-primary);
+}
+
+.data-table td {
+  padding: 10px 16px;
+  color: var(--color-ink);
+  border-bottom: 1px solid var(--color-border-strong);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 300px;
+}
+
+.data-table tbody tr:hover {
+  background: var(--color-surface-muted);
+}
+
+.empty-state,
+.loading-state {
+  padding: 40px 24px;
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: 14px;
+}
+
+.loading-state {
+  color: var(--color-primary);
+}
+
+@media (max-width: 1200px) {
+  .reports-tabs {
+    grid-template-columns: repeat(auto-fit, minmax(95px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .data-table th,
+  .data-table td {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+}
+
+.badge {
+  display: inline-flex;
+  align-self: flex-start;
+  padding: 5px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.badge.get {
+  background: rgba(22, 130, 90, 0.12);
+  color: #147356;
+}
+
+.badge.post {
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+
+.badge.health {
+  background: rgba(180, 120, 20, 0.12);
+  color: #8a5a10;
+}
+
+.badge.admin {
+  background: rgba(107, 70, 168, 0.12);
+  color: #6b46a8;
+}
+
+.badge.pricing {
+  background: rgba(65, 103, 153, 0.18);
+  color: #2d3f4e;
+}
+
+@media (max-width: 980px) {
+  .app-shell {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "brand"
+      "toolbar"
+      "nav"
+      "tabbar"
+      "screentoolbar"
+      "title"
+      "main";
+    height: auto;
+  }
+
+  /* #sinResizeEnMobile: el menú se apila arriba del contenido en mobile (ver arriba), no
+     hay una columna angosta al costado para agrandar/achicar arrastrando. */
+  .sidebar-resize-handle {
+    display: none;
+  }
+
+  /* #rielDeIconosSoloDesktop: `.app-shell.collapsed` angosta la primera columna del grid a
+     72px (ver #rielDeIconos más arriba) -- esa regla no está atada a ningún ancho de
+     pantalla, así que en mobile pisaba el apilado de arriba y dejaba el menú como un riel
+     angosto al costado, con el contenido principal empujado a un costado casi vacío. En
+     mobile, colapsar el menú pasa a mostrar los ítems de nivel superior en una fila
+     horizontal en vez de angostar una columna vertical. */
+  .app-shell.collapsed {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* #rielHorizontalMobile: mismo riel de solo-íconos que en desktop (.sidebar.collapsed ya
+     oculta texto/chevron/subnav, ver #rielDeIconos), pero acostado -- .sidebar-scroll y .nav
+     pasan de columna a fila con scroll horizontal. El tap en un ítem con hijos sigue usando
+     handleCollapsedClick (Sidebar.jsx): expande el sidebar completo y abre ese grupo, porque
+     tampoco hay lugar para desplegar hijos en una fila angosta. */
+  .app-shell.collapsed .sidebar-scroll {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    overflow-x: auto;
+    overflow-y: hidden;
+    gap: 4px;
+    padding: 8px 12px;
+    border-right: none;
+    border-bottom: 1px solid var(--color-border-strong);
+  }
+
+  .app-shell.collapsed .sidebar-scroll > .nav-item.menu-root {
+    margin-top: 0;
+    flex-shrink: 0;
+  }
+
+  .app-shell.collapsed .nav {
+    display: flex;
+    flex-direction: row;
+    gap: 4px;
+  }
+
+  .app-shell.collapsed .nav-group {
+    flex-shrink: 0;
+  }
+
+  .toggle-icon-desktop {
+    display: none;
+  }
+
+  .toggle-icon-mobile {
+    display: flex;
+  }
+
+  .sidebar-scroll,
+  .main-panel {
+    height: auto;
+    overflow-y: visible;
+  }
+
+  /* #anchoCompletoEnMobile: .main-panel (28px) + .panel (22px) de padding a cada lado suman
+     100px perdidos en los dos bordes -- en desktop es proporcional, pero en un celular de
+     ~390px de ancho eso es más de un cuarto de la pantalla ocupado por aire en vez de
+     contenido (el síntoma real: formularios y reportes angostos, con márgenes enormes a los
+     costados, en vez de ocupar el ancho disponible). Se achican los dos a 14px en mobile --
+     .abm-list-column, que cancela el padding de .main-panel con un margin negativo igual y
+     de signo contrario (ver #panelDeFiltrosFueraDeLaTarjeta) para que su franja siga
+     llegando hasta el borde real, se actualiza para seguir cancelando el nuevo valor. */
+  .main-panel {
+    padding: 14px;
+  }
+
+  .panel {
+    padding: 14px;
+  }
+
+  .abm-list-column {
+    margin: -14px 0 -14px -14px;
+  }
+
+  .collapsed-search .abm-list-column {
+    margin: -14px 0;
+  }
+
+  .sidebar-scroll {
+    border-right: none;
+    border-bottom: 1px solid var(--color-border-strong);
+  }
+
+  .brand {
+    padding: 13px 18px;
+  }
+
+  .sidebar-scroll {
+    overflow-y: visible;
+  }
+
+  .header-bar {
+    flex-wrap: wrap;
+    row-gap: 12px;
+  }
+
+  .sidebar-toolbar {
+    flex-wrap: wrap;
+  }
+
+  .mini-form {
+    max-height: none;
+    overflow-y: visible;
+  }
+
+  .content-grid,
+  .admin-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* #loginGeneralApp: pantalla de login/bootstrap del primer admin y la barra superior
+   de sesión que envuelve el resto de la app una vez autenticado. */
+.login-gate-shell {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  /* #sidebarSiempreOscuro: mismo criterio que el degradé del sidebar (ver App.css) -- hex
+     literal, no var(--color-ink), porque el login nunca tiene modo oscuro aplicado (la
+     preferencia se lee del Usuario recién después de loguearse). */
+  background: linear-gradient(135deg, #33475a 0%, #2d3f4e 55%, var(--color-primary) 100%);
+}
+
+.login-gate-card {
+  width: 100%;
+  max-width: 400px;
+  background: var(--color-surface);
+  border-radius: 20px;
+  box-shadow: 0 30px 70px rgba(15, 23, 32, 0.4);
+  overflow: hidden;
+}
+
+.login-gate-branding {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 36px 28px 18px;
+  text-align: center;
+}
+
+.login-gate-logo {
+  width: 300px;
+  height: 156px;
+  flex-shrink: 0;
+  /* #recorteLogo: mismo criterio que .brand-mark (ver App.css) -- logo.webp ya viene
+     recortado, se escala completo con "contain" para verse bien como pieza central de
+     la tarjeta de login en vez de un ícono chico. */
+  background-image: url('/logo.webp');
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
+}
+
+.login-gate-tagline {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.login-gate-panel {
+  padding: 4px 28px 32px;
+}
+
+.login-gate-cargando {
+  margin: 0;
+  padding: 8px 0 24px;
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+.login-gate-form {
+  width: 100%;
+  max-height: none;
+  overflow: visible;
+}
+
+.login-gate-form h3 {
+  margin: 0 0 4px;
+  text-align: center;
+}
+
+/* #toolbarUnificada: menús desplegables de la toolbar (Sincronización, Cuenta) — ver
+   DropdownMenu.jsx y el menú "Cuenta" armado a mano en LoginGate.jsx. */
+.toolbar-dropdown {
+  position: relative;
+}
+
+.toolbar-dropdown-trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 14px;
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--color-ink);
+  background: var(--color-surface-muted);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 0.2s ease, opacity 0.2s ease, background 0.2s ease;
+}
+
+.toolbar-dropdown-trigger:hover {
+  transform: translateY(-1px);
+}
+
+.toolbar-dropdown-trigger.icon-only {
+  padding: 1px 6px;
+  gap: 3px;
+  border-radius: 7px;
+}
+
+.toolbar-dropdown-trigger small {
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+.toolbar-dropdown-chevron {
+  font-size: 11px;
+  transition: transform 0.15s ease;
+}
+
+.toolbar-dropdown-chevron.open {
+  transform: rotate(180deg);
+}
+
+.toolbar-dropdown-panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  min-width: 220px;
+  padding: 6px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  box-shadow: 0 16px 36px rgba(45, 63, 78, 0.18);
+}
+
+.toolbar-dropdown-item {
+  padding: 10px 12px;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-ink);
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.toolbar-dropdown-item:hover {
+  background: var(--color-surface-muted);
+}
+
+.toolbar-dropdown-item:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.toolbar-dropdown-username {
+  padding: 6px 12px 10px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--color-border);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  user-select: none;
+}
+
+.toolbar-dropdown-username small {
+  font-weight: 400;
+}
+
+.toolbar-dropdown-panel-cuenta {
+  min-width: 290px;
+  padding: 10px;
+}
+
+.login-gate-cambiar-password-dropdown {
+  gap: 12px;
+}
+
+.login-gate-cambiar-password-dropdown h4 {
+  margin: 0;
+}
+
+.login-gate-cambiar-password-acciones {
+  display: flex;
+  gap: 8px;
+}
+
+.login-gate-cambiar-password-acciones .primary-button,
+.login-gate-cambiar-password-acciones .ghost-button {
+  flex: 1;
+}
+
+.notification-bell-container {
+  position: relative;
+  display: flex;
+}
+
+.notification-bell-button {
+  position: relative;
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-surface-muted);
+  border-radius: 7px;
+  padding: 0px 6px;
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.notification-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: #c62828;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+}
+
+.notification-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 320px;
+  max-height: 400px;
+  overflow-y: auto;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  z-index: 20;
+  padding: 8px;
+}
+
+.notification-empty {
+  margin: 8px;
+  color: var(--color-text-muted);
+  font-size: 13px;
+}
+
+.notification-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  text-align: left;
+  padding: 10px;
+  border: none;
+  border-bottom: 1px solid var(--color-border);
+  background: none;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.notification-item:last-child {
+  border-bottom: none;
+}
+
+.notification-item:hover {
+  background: var(--color-surface-muted);
+}
+
+.notification-item span {
+  color: var(--color-text-muted);
+  font-size: 12px;
+}
+
+.resumen-ventas-card {
+  margin-bottom: 20px;
+}
+
+.resumen-ventas-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.resumen-ventas-header h3 {
+  margin: 0;
+}
+
+.resumen-ventas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+.resumen-ventas-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 16px;
+  background: var(--color-surface-muted);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+}
+
+.resumen-ventas-label {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.resumen-ventas-valor {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--color-ink);
+}
+
+.resumen-ventas-valor small {
+  font-size: 13px;
+  font-weight: 600;
+  margin-left: 4px;
+}
+
+.resumen-ventas-positivo {
+  color: #15803d;
+}
+
+.resumen-ventas-negativo {
+  color: #9c1c1c;
+}
+
+.resumen-ventas-hint {
+  font-size: 11px;
+  color: var(--color-text-muted);
+  line-height: 1.4;
+}
+
+.resumen-ventas-charts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+@media (max-width: 980px) {
+  .resumen-ventas-charts {
+    grid-template-columns: 1fr;
+  }
+}
+
+.resumen-ventas-chart-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 20px 22px;
+  background: var(--color-surface-muted);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+}
+
+.ventana-bar-chart {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 14px;
+  height: 240px;
+  padding-top: 12px;
+  margin-top: 8px;
+}
+
+.ventana-bar-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+}
+
+.ventana-bar-valor {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-ink);
+}
+
+.ventana-bar-track {
+  display: flex;
+  align-items: flex-end;
+  height: 190px;
+  width: 100%;
+}
+
+.ventana-bar-fill {
+  width: 100%;
+  background: var(--color-primary);
+  border-radius: 4px 4px 0 0;
+  transition: height 0.2s ease;
+}
+
+.ventana-bar-label {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.pie-chart-row {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.pie-chart-svg {
+  width: 180px;
+  height: 180px;
+  flex-shrink: 0;
+}
+
+.pie-chart-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--color-ink);
+}
+
+.pie-chart-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pie-chart-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.ejecucion-automatica-estado {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border);
+}
+
+.ejecucion-automatica-estado h4 {
+  margin: 0 0 8px;
+}
+
+.ejecucion-automatica-estado .secondary-button {
+  margin-top: 8px;
+}
+
+.ejecucion-ok {
+  color: #15803d;
+  font-weight: 600;
+}
+
+.ejecucion-error {
+  color: #9c1c1c;
+  font-weight: 600;
+}
+
+.email-prueba-form {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border);
+}
+
+.usuarios-panel .usuarios-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 24px;
+}
+
+.usuarios-panel .usuarios-tabla th,
+.usuarios-panel .usuarios-tabla td {
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--color-border-strong);
+  font-size: 14px;
+}
+
+.usuarios-email-edicion {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.usuarios-email-edicion input {
+  min-width: 180px;
+  padding: 6px 8px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+}
+
+.usuarios-tabla-acciones {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.usuarios-secciones-checkboxes {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 0;
+}
+
+.usuarios-secciones-checkboxes > span {
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.usuarios-secciones-acciones {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}

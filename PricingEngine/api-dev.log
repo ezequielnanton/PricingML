@@ -1,0 +1,184 @@
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: http://0.0.0.0:5000
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: https://0.0.0.0:5001
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Production
+info: Microsoft.Hosting.Lifetime[0]
+      Content root path: C:\PricingEngine\src\PricingApi
+fail: Microsoft.AspNetCore.Server.Kestrel[13]
+      Connection id "0HNO4E20TN162", Request id "0HNO4E20TN162:00000003": An unhandled exception was thrown by the application.
+      Microsoft.Data.SqlClient.SqlException (0x80131904): No existe una estrategia activa configurada para la empresa.
+         at Microsoft.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+         at Microsoft.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+         at Microsoft.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, SqlCommand command, Boolean callerHasConnectionLock, Boolean asyncClose)
+         at Microsoft.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+         at Microsoft.Data.SqlClient.SqlDataReader.TryConsumeMetaData()
+         at Microsoft.Data.SqlClient.SqlCommand.FinishExecuteReader(SqlDataReader ds, RunBehavior runBehavior, String resetOptionsString, Boolean isInternal, Boolean forDescribeParameterEncryption, Boolean shouldCacheForAlwaysEncrypted)
+         at Microsoft.Data.SqlClient.SqlCommand.CompleteAsyncExecuteReader(Boolean isInternal, Boolean forDescribeParameterEncryption)
+         at Microsoft.Data.SqlClient.SqlCommand.EndExecuteReaderInternal(IAsyncResult asyncResult)
+         at Microsoft.Data.SqlClient.SqlCommand.EndExecuteReaderAsync(IAsyncResult asyncResult)
+         at System.Threading.Tasks.TaskFactory`1.FromAsyncCoreLogic(IAsyncResult iar, Func`2 endFunction, Action`1 endAction, Task`1 promise, Boolean requiresSynchronization)
+      --- End of stack trace from previous location ---
+         at PricingApi.Services.SqlPricingService.EvaluateAsync(ProductoInput producto, Boolean modoSimulacion, Boolean persistir) in C:\PricingEngine\src\PricingApi\Services\SqlPricingService.cs:line 64
+         at PricingApi.Services.SqlPricingService.EvaluateAsync(ProductoInput producto, Boolean modoSimulacion, Boolean persistir) in C:\PricingEngine\src\PricingApi\Services\SqlPricingService.cs:line 76
+         at PricingApi.Services.SqlPricingService.EvaluateAsync(ProductoInput producto, Boolean modoSimulacion, Boolean persistir) in C:\PricingEngine\src\PricingApi\Services\SqlPricingService.cs:line 76
+         at Program.<>c.<<<Main>$>b__0_25>d.MoveNext() in C:\PricingEngine\src\PricingApi\Program.cs:line 343
+      --- End of stack trace from previous location ---
+         at Microsoft.AspNetCore.Http.RequestDelegateFactory.ExecuteTaskResult[T](Task`1 task, HttpContext httpContext)
+         at Microsoft.AspNetCore.Http.RequestDelegateFactory.<>c__DisplayClass102_2.<<HandleRequestBodyAndCompileRequestDelegateForJson>b__2>d.MoveNext()
+      --- End of stack trace from previous location ---
+         at Program.<>c__DisplayClass0_0.<<<Main>$>b__1>d.MoveNext() in C:\PricingEngine\src\PricingApi\Program.cs:line 113
+      --- End of stack trace from previous location ---
+         at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+         at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+         at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Http.HttpProtocol.ProcessRequests[TContext](IHttpApplication`1 application)
+      ClientConnectionId:45889207-9778-4aca-b00a-42514ff92702
+      Error Number:50000,State:1,Class:16
+fail: Microsoft.AspNetCore.Server.Kestrel[13]
+      Connection id "0HNO4E20TN15U", Request id "0HNO4E20TN15U:00000006": An unhandled exception was thrown by the application.
+      Microsoft.Data.SqlClient.SqlException (0x80131904): No existe una estrategia activa configurada para la empresa.
+         at Microsoft.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+         at Microsoft.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+         at Microsoft.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, SqlCommand command, Boolean callerHasConnectionLock, Boolean asyncClose)
+         at Microsoft.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+         at Microsoft.Data.SqlClient.SqlDataReader.TryConsumeMetaData()
+         at Microsoft.Data.SqlClient.SqlCommand.FinishExecuteReader(SqlDataReader ds, RunBehavior runBehavior, String resetOptionsString, Boolean isInternal, Boolean forDescribeParameterEncryption, Boolean shouldCacheForAlwaysEncrypted)
+         at Microsoft.Data.SqlClient.SqlCommand.CompleteAsyncExecuteReader(Boolean isInternal, Boolean forDescribeParameterEncryption)
+         at Microsoft.Data.SqlClient.SqlCommand.EndExecuteReaderInternal(IAsyncResult asyncResult)
+         at Microsoft.Data.SqlClient.SqlCommand.EndExecuteReaderAsync(IAsyncResult asyncResult)
+         at System.Threading.Tasks.TaskFactory`1.FromAsyncCoreLogic(IAsyncResult iar, Func`2 endFunction, Action`1 endAction, Task`1 promise, Boolean requiresSynchronization)
+      --- End of stack trace from previous location ---
+         at PricingApi.Services.SqlPricingService.EvaluateAsync(ProductoInput producto, Boolean modoSimulacion, Boolean persistir) in C:\PricingEngine\src\PricingApi\Services\SqlPricingService.cs:line 64
+         at PricingApi.Services.SqlPricingService.EvaluateAsync(ProductoInput producto, Boolean modoSimulacion, Boolean persistir) in C:\PricingEngine\src\PricingApi\Services\SqlPricingService.cs:line 76
+         at PricingApi.Services.SqlPricingService.EvaluateAsync(ProductoInput producto, Boolean modoSimulacion, Boolean persistir) in C:\PricingEngine\src\PricingApi\Services\SqlPricingService.cs:line 76
+         at Program.<>c.<<<Main>$>b__0_25>d.MoveNext() in C:\PricingEngine\src\PricingApi\Program.cs:line 343
+      --- End of stack trace from previous location ---
+         at Microsoft.AspNetCore.Http.RequestDelegateFactory.ExecuteTaskResult[T](Task`1 task, HttpContext httpContext)
+         at Microsoft.AspNetCore.Http.RequestDelegateFactory.<>c__DisplayClass102_2.<<HandleRequestBodyAndCompileRequestDelegateForJson>b__2>d.MoveNext()
+      --- End of stack trace from previous location ---
+         at Program.<>c__DisplayClass0_0.<<<Main>$>b__1>d.MoveNext() in C:\PricingEngine\src\PricingApi\Program.cs:line 113
+      --- End of stack trace from previous location ---
+         at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+         at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+         at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Http.HttpProtocol.ProcessRequests[TContext](IHttpApplication`1 application)
+      ClientConnectionId:45889207-9778-4aca-b00a-42514ff92702
+      Error Number:50000,State:1,Class:16
+fail: Microsoft.AspNetCore.Server.Kestrel[13]
+      Connection id "0HNO4E20TN166", Request id "0HNO4E20TN166:00000004": An unhandled exception was thrown by the application.
+      Microsoft.Data.SqlClient.SqlException (0x80131904): No existe una estrategia activa configurada para la empresa.
+         at Microsoft.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+         at Microsoft.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+         at Microsoft.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, SqlCommand command, Boolean callerHasConnectionLock, Boolean asyncClose)
+         at Microsoft.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+         at Microsoft.Data.SqlClient.SqlDataReader.TryConsumeMetaData()
+         at Microsoft.Data.SqlClient.SqlCommand.FinishExecuteReader(SqlDataReader ds, RunBehavior runBehavior, String resetOptionsString, Boolean isInternal, Boolean forDescribeParameterEncryption, Boolean shouldCacheForAlwaysEncrypted)
+         at Microsoft.Data.SqlClient.SqlCommand.CompleteAsyncExecuteReader(Boolean isInternal, Boolean forDescribeParameterEncryption)
+         at Microsoft.Data.SqlClient.SqlCommand.EndExecuteReaderInternal(IAsyncResult asyncResult)
+         at Microsoft.Data.SqlClient.SqlCommand.EndExecuteReaderAsync(IAsyncResult asyncResult)
+         at System.Threading.Tasks.TaskFactory`1.FromAsyncCoreLogic(IAsyncResult iar, Func`2 endFunction, Action`1 endAction, Task`1 promise, Boolean requiresSynchronization)
+      --- End of stack trace from previous location ---
+         at PricingApi.Services.SqlPricingService.EvaluateAsync(ProductoInput producto, Boolean modoSimulacion, Boolean persistir) in C:\PricingEngine\src\PricingApi\Services\SqlPricingService.cs:line 64
+         at PricingApi.Services.SqlPricingService.EvaluateAsync(ProductoInput producto, Boolean modoSimulacion, Boolean persistir) in C:\PricingEngine\src\PricingApi\Services\SqlPricingService.cs:line 76
+         at PricingApi.Services.SqlPricingService.EvaluateAsync(ProductoInput producto, Boolean modoSimulacion, Boolean persistir) in C:\PricingEngine\src\PricingApi\Services\SqlPricingService.cs:line 76
+         at Program.<>c.<<<Main>$>b__0_25>d.MoveNext() in C:\PricingEngine\src\PricingApi\Program.cs:line 343
+      --- End of stack trace from previous location ---
+         at Microsoft.AspNetCore.Http.RequestDelegateFactory.ExecuteTaskResult[T](Task`1 task, HttpContext httpContext)
+         at Microsoft.AspNetCore.Http.RequestDelegateFactory.<>c__DisplayClass102_2.<<HandleRequestBodyAndCompileRequestDelegateForJson>b__2>d.MoveNext()
+      --- End of stack trace from previous location ---
+         at Program.<>c__DisplayClass0_0.<<<Main>$>b__1>d.MoveNext() in C:\PricingEngine\src\PricingApi\Program.cs:line 113
+      --- End of stack trace from previous location ---
+         at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+         at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+         at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Http.HttpProtocol.ProcessRequests[TContext](IHttpApplication`1 application)
+      ClientConnectionId:ea9705b7-5a9a-4e82-ae2b-4733f5680e1f
+      Error Number:50000,State:1,Class:16
+fail: Microsoft.AspNetCore.Server.Kestrel[13]
+      Connection id "0HNO4E20TN167", Request id "0HNO4E20TN167:00000002": An unhandled exception was thrown by the application.
+      Microsoft.Data.SqlClient.SqlException (0x80131904): No existe una estrategia activa configurada para la empresa.
+         at Microsoft.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+         at Microsoft.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+         at Microsoft.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, SqlCommand command, Boolean callerHasConnectionLock, Boolean asyncClose)
+         at Microsoft.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+         at Microsoft.Data.SqlClient.SqlDataReader.TryConsumeMetaData()
+         at Microsoft.Data.SqlClient.SqlCommand.FinishExecuteReader(SqlDataReader ds, RunBehavior runBehavior, String resetOptionsString, Boolean isInternal, Boolean forDescribeParameterEncryption, Boolean shouldCacheForAlwaysEncrypted)
+         at Microsoft.Data.SqlClient.SqlCommand.CompleteAsyncExecuteReader(Boolean isInternal, Boolean forDescribeParameterEncryption)
+         at Microsoft.Data.SqlClient.SqlCommand.EndExecuteReaderInternal(IAsyncResult asyncResult)
+         at Microsoft.Data.SqlClient.SqlCommand.EndExecuteReaderAsync(IAsyncResult asyncResult)
+         at System.Threading.Tasks.TaskFactory`1.FromAsyncCoreLogic(IAsyncResult iar, Func`2 endFunction, Action`1 endAction, Task`1 promise, Boolean requiresSynchronization)
+      --- End of stack trace from previous location ---
+         at PricingApi.Services.SqlPricingService.EvaluateAsync(ProductoInput producto, Boolean modoSimulacion, Boolean persistir) in C:\PricingEngine\src\PricingApi\Services\SqlPricingService.cs:line 64
+         at PricingApi.Services.SqlPricingService.EvaluateAsync(ProductoInput producto, Boolean modoSimulacion, Boolean persistir) in C:\PricingEngine\src\PricingApi\Services\SqlPricingService.cs:line 76
+         at PricingApi.Services.SqlPricingService.EvaluateAsync(ProductoInput producto, Boolean modoSimulacion, Boolean persistir) in C:\PricingEngine\src\PricingApi\Services\SqlPricingService.cs:line 76
+         at Program.<>c.<<<Main>$>b__0_25>d.MoveNext() in C:\PricingEngine\src\PricingApi\Program.cs:line 343
+      --- End of stack trace from previous location ---
+         at Microsoft.AspNetCore.Http.RequestDelegateFactory.ExecuteTaskResult[T](Task`1 task, HttpContext httpContext)
+         at Microsoft.AspNetCore.Http.RequestDelegateFactory.<>c__DisplayClass102_2.<<HandleRequestBodyAndCompileRequestDelegateForJson>b__2>d.MoveNext()
+      --- End of stack trace from previous location ---
+         at Program.<>c__DisplayClass0_0.<<<Main>$>b__1>d.MoveNext() in C:\PricingEngine\src\PricingApi\Program.cs:line 113
+      --- End of stack trace from previous location ---
+         at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+         at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+         at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Http.HttpProtocol.ProcessRequests[TContext](IHttpApplication`1 application)
+      ClientConnectionId:ea9705b7-5a9a-4e82-ae2b-4733f5680e1f
+      Error Number:50000,State:1,Class:16
+fail: Microsoft.AspNetCore.Server.Kestrel[13]
+      Connection id "0HNO4E20TN16E", Request id "0HNO4E20TN16E:00000001": An unhandled exception was thrown by the application.
+      Microsoft.Data.SqlClient.SqlException (0x80131904): No existe una estrategia activa configurada para la empresa.
+         at Microsoft.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+         at Microsoft.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+         at Microsoft.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, SqlCommand command, Boolean callerHasConnectionLock, Boolean asyncClose)
+         at Microsoft.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+         at Microsoft.Data.SqlClient.SqlDataReader.TryConsumeMetaData()
+         at Microsoft.Data.SqlClient.SqlCommand.FinishExecuteReader(SqlDataReader ds, RunBehavior runBehavior, String resetOptionsString, Boolean isInternal, Boolean forDescribeParameterEncryption, Boolean shouldCacheForAlwaysEncrypted)
+         at Microsoft.Data.SqlClient.SqlCommand.CompleteAsyncExecuteReader(Boolean isInternal, Boolean forDescribeParameterEncryption)
+         at Microsoft.Data.SqlClient.SqlCommand.EndExecuteReaderInternal(IAsyncResult asyncResult)
+         at Microsoft.Data.SqlClient.SqlCommand.EndExecuteReaderAsync(IAsyncResult asyncResult)
+         at System.Threading.Tasks.TaskFactory`1.FromAsyncCoreLogic(IAsyncResult iar, Func`2 endFunction, Action`1 endAction, Task`1 promise, Boolean requiresSynchronization)
+      --- End of stack trace from previous location ---
+         at PricingApi.Services.SqlPricingService.EvaluateAsync(ProductoInput producto, Boolean modoSimulacion, Boolean persistir) in C:\PricingEngine\src\PricingApi\Services\SqlPricingService.cs:line 64
+         at PricingApi.Services.SqlPricingService.EvaluateAsync(ProductoInput producto, Boolean modoSimulacion, Boolean persistir) in C:\PricingEngine\src\PricingApi\Services\SqlPricingService.cs:line 76
+         at PricingApi.Services.SqlPricingService.EvaluateAsync(ProductoInput producto, Boolean modoSimulacion, Boolean persistir) in C:\PricingEngine\src\PricingApi\Services\SqlPricingService.cs:line 76
+         at Program.<>c.<<<Main>$>b__0_25>d.MoveNext() in C:\PricingEngine\src\PricingApi\Program.cs:line 343
+      --- End of stack trace from previous location ---
+         at Microsoft.AspNetCore.Http.RequestDelegateFactory.ExecuteTaskResult[T](Task`1 task, HttpContext httpContext)
+         at Microsoft.AspNetCore.Http.RequestDelegateFactory.<>c__DisplayClass102_2.<<HandleRequestBodyAndCompileRequestDelegateForJson>b__2>d.MoveNext()
+      --- End of stack trace from previous location ---
+         at Program.<>c__DisplayClass0_0.<<<Main>$>b__1>d.MoveNext() in C:\PricingEngine\src\PricingApi\Program.cs:line 113
+      --- End of stack trace from previous location ---
+         at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+         at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+         at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Http.HttpProtocol.ProcessRequests[TContext](IHttpApplication`1 application)
+      ClientConnectionId:45889207-9778-4aca-b00a-42514ff92702
+      Error Number:50000,State:1,Class:16
+fail: Microsoft.AspNetCore.Server.Kestrel[13]
+      Connection id "0HNO4E20TN16F", Request id "0HNO4E20TN16F:00000001": An unhandled exception was thrown by the application.
+      Microsoft.Data.SqlClient.SqlException (0x80131904): No existe una estrategia activa configurada para la empresa.
+         at Microsoft.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+         at Microsoft.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+         at Microsoft.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, SqlCommand command, Boolean callerHasConnectionLock, Boolean asyncClose)
+         at Microsoft.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+         at Microsoft.Data.SqlClient.SqlDataReader.TryConsumeMetaData()
+         at Microsoft.Data.SqlClient.SqlCommand.FinishExecuteReader(SqlDataReader ds, RunBehavior runBehavior, String resetOptionsString, Boolean isInternal, Boolean forDescribeParameterEncryption, Boolean shouldCacheForAlwaysEncrypted)
+         at Microsoft.Data.SqlClient.SqlCommand.CompleteAsyncExecuteReader(Boolean isInternal, Boolean forDescribeParameterEncryption)
+         at Microsoft.Data.SqlClient.SqlCommand.EndExecuteReaderInternal(IAsyncResult asyncResult)
+         at Microsoft.Data.SqlClient.SqlCommand.EndExecuteReaderAsync(IAsyncResult asyncResult)
+         at System.Threading.Tasks.TaskFactory`1.FromAsyncCoreLogic(IAsyncResult iar, Func`2 endFunction, Action`1 endAction, Task`1 promise, Boolean requiresSynchronization)
+      --- End of stack trace from previous location ---
+         at PricingApi.Services.SqlPricingService.EvaluateAsync(ProductoInput producto, Boolean modoSimulacion, Boolean persistir) in C:\PricingEngine\src\PricingApi\Services\SqlPricingService.cs:line 64
+         at PricingApi.Services.SqlPricingService.EvaluateAsync(ProductoInput producto, Boolean modoSimulacion, Boolean persistir) in C:\PricingEngine\src\PricingApi\Services\SqlPricingService.cs:line 76
+         at PricingApi.Services.SqlPricingService.EvaluateAsync(ProductoInput producto, Boolean modoSimulacion, Boolean persistir) in C:\PricingEngine\src\PricingApi\Services\SqlPricingService.cs:line 76
+         at Program.<>c.<<<Main>$>b__0_25>d.MoveNext() in C:\PricingEngine\src\PricingApi\Program.cs:line 343
+      --- End of stack trace from previous location ---
+         at Microsoft.AspNetCore.Http.RequestDelegateFactory.ExecuteTaskResult[T](Task`1 task, HttpContext httpContext)
+         at Microsoft.AspNetCore.Http.RequestDelegateFactory.<>c__DisplayClass102_2.<<HandleRequestBodyAndCompileRequestDelegateForJson>b__2>d.MoveNext()
+      --- End of stack trace from previous location ---
+         at Program.<>c__DisplayClass0_0.<<<Main>$>b__1>d.MoveNext() in C:\PricingEngine\src\PricingApi\Program.cs:line 113
+      --- End of stack trace from previous location ---
+         at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+         at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+         at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Http.HttpProtocol.ProcessRequests[TContext](IHttpApplication`1 application)
+      ClientConnectionId:45889207-9778-4aca-b00a-42514ff92702
+      Error Number:50000,State:1,Class:16

@@ -1,0 +1,379 @@
+Connection to host tunnel relay restored.
+Hosting port: 5000
+Connect via browser: https://0smpd1nk.brs.devtunnels.ms:5000, https://0smpd1nk-5000.brs.devtunnels.ms
+Inspect network activity: https://0smpd1nk-5000-inspect.brs.devtunnels.ms
+Hosting port: 5173
+Connect via browser: https://0smpd1nk.brs.devtunnels.ms:5173, https://0smpd1nk-5173.brs.devtunnels.ms
+Inspect network activity: https://0smpd1nk-5173-inspect.brs.devtunnels.ms
+
+Ready to accept connections for tunnel: neat-lake-fmtg84g.brs
+ClientSSH: SshChannel(Type: forwarded-tcpip, Id: 1, RemoteId: 1) send window is full. Waiting for window adjustment before sending.
+ClientSSH: SshChannel(Type: forwarded-tcpip, Id: 1, RemoteId: 1) send window is full. Waiting for window adjustment before sending.
+ClientSSH: SshChannel(Type: forwarded-tcpip, Id: 1, RemoteId: 1) send window is full. Waiting for window adjustment before sending.
+ClientSSH: SshChannel(Type: forwarded-tcpip, Id: 1, RemoteId: 1) send window is full. Waiting for window adjustment before sending.
+ClientSSH: SshChannel(Type: forwarded-tcpip, Id: 1, RemoteId: 1) send window is full. Waiting for window adjustment before sending.
+WS.R: Socket closed prematurely exception: System.Net.WebSockets.WebSocketException (0x80004005): The remote party closed the WebSocket connection without completing the close handshake.
+   at System.Net.WebSockets.ManagedWebSocket.ThrowEOFUnexpected()
+   at System.Net.WebSockets.ManagedWebSocket.EnsureBufferContainsAsync(Int32 minimumRequiredBytes, CancellationToken cancellationToken)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)
+   at System.Net.WebSockets.ManagedWebSocket.ReceiveAsyncPrivate[TResult](Memory`1 payloadBuffer, CancellationToken cancellationToken)
+   at Microsoft.DevTunnels.Connections.WebSocketStream.ReadAsync(Memory`1 buffer, CancellationToken cancellationToken), SocketState=Aborted, CloseStatus=, CloseStatusDescription=
+Connection to host tunnel relay closed. Connection lost.. Reconnecting.
+ClientSSH: Session closed unexpectedly due to ConnectionLost, "Connection lost.
+Reason: ConnectionLost"
+Microsoft.DevTunnels.Ssh.SshConnectionException: Connection lost.
+Reason: ConnectionLost
+ ---> Microsoft.DevTunnels.Ssh.SshConnectionException: Connection lost.
+Reason: ConnectionLost
+   at Microsoft.DevTunnels.Ssh.SshStream.DequeueBuffer()
+   at Microsoft.DevTunnels.Ssh.SshStream.ReadAsync(Byte[] buffer, Int32 offset, Int32 count, CancellationToken cancellation)
+   at Microsoft.DevTunnels.Ssh.IO.SshProtocol.ReadAsync(Buffer buffer, CancellationToken cancellation)
+   --- End of inner exception stack trace ---
+   at Microsoft.DevTunnels.Ssh.IO.SshProtocol.ReadAsync(Buffer buffer, CancellationToken cancellation)
+   at Microsoft.DevTunnels.Ssh.IO.SshProtocol.ReceiveMessageAsync(CancellationToken cancellation)
+   at Microsoft.DevTunnels.Ssh.SshSession.ReceiveAndHandleOneMessageAsync(CancellationToken cancellation)
+Connection to host tunnel relay restored.
+WS.R: Socket closed prematurely exception: System.Net.WebSockets.WebSocketException (0x80004005): The remote party closed the WebSocket connection without completing the close handshake.
+   at System.Net.WebSockets.ManagedWebSocket.ThrowEOFUnexpected()
+   at System.Net.WebSockets.ManagedWebSocket.EnsureBufferContainsAsync(Int32 minimumRequiredBytes, CancellationToken cancellationToken)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)
+   at System.Net.WebSockets.ManagedWebSocket.ReceiveAsyncPrivate[TResult](Memory`1 payloadBuffer, CancellationToken cancellationToken)
+   at Microsoft.DevTunnels.Connections.WebSocketStream.ReadAsync(Memory`1 buffer, CancellationToken cancellationToken), SocketState=Aborted, CloseStatus=, CloseStatusDescription=
+Connection to host tunnel relay closed. Connection lost.. Reconnecting.
+Connection to host tunnel relay restored.
+WS.R: Socket closed prematurely exception: System.Net.WebSockets.WebSocketException (0x80004005): The remote party closed the WebSocket connection without completing the close handshake.
+ ---> System.IO.IOException: Unable to read data from the transport connection: Se ha forzado la interrupci¢n de una conexi¢n existente por el host remoto..
+ ---> System.Net.Sockets.SocketException (10054): Se ha forzado la interrupci¢n de una conexi¢n existente por el host remoto.
+   --- End of inner exception stack trace ---
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource<System.Int32>.GetResult(Int16 token)
+   at System.Net.Security.SslStream.EnsureFullTlsFrameAsync[TIOAdapter](CancellationToken cancellationToken, Int32 estimatedSize)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at System.Net.Security.SslStream.ReadAsyncInternal[TIOAdapter](Memory`1 buffer, CancellationToken cancellationToken)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at System.Net.Http.HttpConnection.ReadBufferedAsyncCore(Memory`1 destination)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at System.Net.Http.HttpConnection.RawConnectionStream.ReadAsync(Memory`1 buffer, CancellationToken cancellationToken)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at System.IO.Stream.ReadAtLeastAsyncCore(Memory`1 buffer, Int32 minimumBytes, Boolean throwOnEndOfStream, CancellationToken cancellationToken)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at System.Net.WebSockets.ManagedWebSocket.EnsureBufferContainsAsync(Int32 minimumRequiredBytes, CancellationToken cancellationToken)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)
+   at System.Net.WebSockets.ManagedWebSocket.ReceiveAsyncPrivate[TResult](Memory`1 payloadBuffer, CancellationToken cancellationToken)
+   at System.Net.WebSockets.ManagedWebSocket.ReceiveAsyncPrivate[TResult](Memory`1 payloadBuffer, CancellationToken cancellationToken)
+   at Microsoft.DevTunnels.Connections.WebSocketStream.ReadAsync(Memory`1 buffer, CancellationToken cancellationToken), SocketState=Aborted, CloseStatus=, CloseStatusDescription=
+Connection to host tunnel relay closed. Connection lost.. Reconnecting.
+Connection to host tunnel relay restored.
+WS.R: Socket closed prematurely exception: System.Net.WebSockets.WebSocketException (0x80004005): The remote party closed the WebSocket connection without completing the close handshake.
+ ---> System.IO.IOException: Unable to read data from the transport connection: Se ha forzado la interrupci¢n de una conexi¢n existente por el host remoto..
+ ---> System.Net.Sockets.SocketException (10054): Se ha forzado la interrupci¢n de una conexi¢n existente por el host remoto.
+   --- End of inner exception stack trace ---
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource<System.Int32>.GetResult(Int16 token)
+   at System.Net.Security.SslStream.EnsureFullTlsFrameAsync[TIOAdapter](CancellationToken cancellationToken, Int32 estimatedSize)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at System.Net.Security.SslStream.ReadAsyncInternal[TIOAdapter](Memory`1 buffer, CancellationToken cancellationToken)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at System.Net.Http.HttpConnection.ReadBufferedAsyncCore(Memory`1 destination)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at System.Net.Http.HttpConnection.RawConnectionStream.ReadAsync(Memory`1 buffer, CancellationToken cancellationToken)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at System.IO.Stream.ReadAtLeastAsyncCore(Memory`1 buffer, Int32 minimumBytes, Boolean throwOnEndOfStream, CancellationToken cancellationToken)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at System.Net.WebSockets.ManagedWebSocket.EnsureBufferContainsAsync(Int32 minimumRequiredBytes, CancellationToken cancellationToken)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)
+   at System.Net.WebSockets.ManagedWebSocket.ReceiveAsyncPrivate[TResult](Memory`1 payloadBuffer, CancellationToken cancellationToken)
+   at System.Net.WebSockets.ManagedWebSocket.ReceiveAsyncPrivate[TResult](Memory`1 payloadBuffer, CancellationToken cancellationToken)
+   at Microsoft.DevTunnels.Connections.WebSocketStream.ReadAsync(Memory`1 buffer, CancellationToken cancellationToken), SocketState=Aborted, CloseStatus=, CloseStatusDescription=
+Connection to host tunnel relay closed. Connection lost.. Reconnecting.
+Connection to host tunnel relay restored.
+ClientSSH: SshServerSession:23642693: Invalid channel ID 2 in ChannelDataMessage
+ClientSSH: SshServerSession:30813718: Invalid channel ID 6 in ChannelDataMessage
+ClientSSH: SshServerSession:50416943: Invalid channel ID 0 in ChannelDataMessage
+ClientSSH: SshServerSession:46319349: Invalid channel ID 0 in ChannelDataMessage
+ClientSSH: SshServerSession:9790735: Invalid channel ID 0 in ChannelDataMessage
+ClientSSH: SshServerSession:21313174: Invalid channel ID 0 in ChannelDataMessage
+ClientSSH: PortForwardingService connection  to localhost:5000 failed: No se puede establecer una conexi¢n ya que el equipo de destino deneg¢ expresamente dicha conexi¢n.
+ClientSSH: PortForwardingService unexpected error forwarding stream: System.ObjectDisposedException: Cannot access a disposed object.
+Object name: 'SshChannel'.
+   at Microsoft.DevTunnels.Ssh.SshChannel.SendAsync(Buffer data, CancellationToken cancellation)
+   at Microsoft.DevTunnels.Ssh.SshStream.WriteAsync(Byte[] buffer, Int32 offset, Int32 count, CancellationToken cancellation)
+   at Microsoft.DevTunnels.Ssh.Tcp.StreamForwarder.ForwardStreamAsync(Stream source, Stream destination, CancellationToken cancellation)
+   at Microsoft.DevTunnels.Ssh.Tcp.StreamForwarder.ForwardStreamAsync(Stream localStream, Stream remoteStream)
+   at Microsoft.DevTunnels.Ssh.Tcp.StreamForwarder.ForwardStreamAsync()
+ClientSSH: PortForwardingService unexpected error forwarding stream: System.ObjectDisposedException: Cannot access a disposed object.
+Object name: 'SshChannel'.
+   at Microsoft.DevTunnels.Ssh.SshChannel.SendAsync(Buffer data, CancellationToken cancellation)
+   at Microsoft.DevTunnels.Ssh.SshStream.WriteAsync(Byte[] buffer, Int32 offset, Int32 count, CancellationToken cancellation)
+   at Microsoft.DevTunnels.Ssh.Tcp.StreamForwarder.ForwardStreamAsync(Stream source, Stream destination, CancellationToken cancellation)
+   at Microsoft.DevTunnels.Ssh.Tcp.StreamForwarder.ForwardStreamAsync(Stream localStream, Stream remoteStream)
+   at Microsoft.DevTunnels.Ssh.Tcp.StreamForwarder.ForwardStreamAsync()
+ClientSSH: PortForwardingService unexpected error forwarding stream: System.ObjectDisposedException: Cannot access a disposed object.
+Object name: 'SshChannel'.
+   at Microsoft.DevTunnels.Ssh.SshChannel.SendAsync(Buffer data, CancellationToken cancellation)
+   at Microsoft.DevTunnels.Ssh.SshStream.WriteAsync(Byte[] buffer, Int32 offset, Int32 count, CancellationToken cancellation)
+   at Microsoft.DevTunnels.Ssh.Tcp.StreamForwarder.ForwardStreamAsync(Stream source, Stream destination, CancellationToken cancellation)
+   at Microsoft.DevTunnels.Ssh.Tcp.StreamForwarder.ForwardStreamAsync(Stream localStream, Stream remoteStream)
+   at Microsoft.DevTunnels.Ssh.Tcp.StreamForwarder.ForwardStreamAsync()
+ClientSSH: SshServerSession:20564138: Invalid channel ID 0 in ChannelDataMessage
+ClientSSH: PortForwardingService unexpected error forwarding stream: System.ObjectDisposedException: Cannot access a disposed object.
+Object name: 'SshChannel'.
+   at Microsoft.DevTunnels.Ssh.SshChannel.SendAsync(Buffer data, CancellationToken cancellation)
+   at Microsoft.DevTunnels.Ssh.SshStream.WriteAsync(Byte[] buffer, Int32 offset, Int32 count, CancellationToken cancellation)
+   at Microsoft.DevTunnels.Ssh.Tcp.StreamForwarder.ForwardStreamAsync(Stream source, Stream destination, CancellationToken cancellation)
+   at Microsoft.DevTunnels.Ssh.Tcp.StreamForwarder.ForwardStreamAsync(Stream localStream, Stream remoteStream)
+   at Microsoft.DevTunnels.Ssh.Tcp.StreamForwarder.ForwardStreamAsync()
+ClientSSH: PortForwardingService unexpected error forwarding stream: System.ObjectDisposedException: Cannot access a disposed object.
+Object name: 'SshChannel'.
+   at Microsoft.DevTunnels.Ssh.SshChannel.SendAsync(Buffer data, CancellationToken cancellation)
+   at Microsoft.DevTunnels.Ssh.SshStream.WriteAsync(Byte[] buffer, Int32 offset, Int32 count, CancellationToken cancellation)
+   at Microsoft.DevTunnels.Ssh.Tcp.StreamForwarder.ForwardStreamAsync(Stream source, Stream destination, CancellationToken cancellation)
+   at Microsoft.DevTunnels.Ssh.Tcp.StreamForwarder.ForwardStreamAsync(Stream localStream, Stream remoteStream)
+   at Microsoft.DevTunnels.Ssh.Tcp.StreamForwarder.ForwardStreamAsync()
+ClientSSH: PortForwardingService unexpected error forwarding stream: System.ObjectDisposedException: Cannot access a disposed object.
+Object name: 'SshChannel'.
+   at Microsoft.DevTunnels.Ssh.SshChannel.SendAsync(Buffer data, CancellationToken cancellation)
+   at Microsoft.DevTunnels.Ssh.SshStream.WriteAsync(Byte[] buffer, Int32 offset, Int32 count, CancellationToken cancellation)
+   at Microsoft.DevTunnels.Ssh.Tcp.StreamForwarder.ForwardStreamAsync(Stream source, Stream destination, CancellationToken cancellation)
+   at Microsoft.DevTunnels.Ssh.Tcp.StreamForwarder.ForwardStreamAsync(Stream localStream, Stream remoteStream)
+   at Microsoft.DevTunnels.Ssh.Tcp.StreamForwarder.ForwardStreamAsync()
+ClientSSH: PortForwardingService unexpected error forwarding stream: System.ObjectDisposedException: Cannot access a disposed object.
+Object name: 'SshChannel'.
+   at Microsoft.DevTunnels.Ssh.SshChannel.SendAsync(Buffer data, CancellationToken cancellation)
+   at Microsoft.DevTunnels.Ssh.SshStream.WriteAsync(Byte[] buffer, Int32 offset, Int32 count, CancellationToken cancellation)
+   at Microsoft.DevTunnels.Ssh.Tcp.StreamForwarder.ForwardStreamAsync(Stream source, Stream destination, CancellationToken cancellation)
+   at Microsoft.DevTunnels.Ssh.Tcp.StreamForwarder.ForwardStreamAsync(Stream localStream, Stream remoteStream)
+   at Microsoft.DevTunnels.Ssh.Tcp.StreamForwarder.ForwardStreamAsync()
+ClientSSH: PortForwardingService connection  to localhost:5000 failed: No se puede establecer una conexi¢n ya que el equipo de destino deneg¢ expresamente dicha conexi¢n.
+ClientSSH: PortForwardingService unexpected error forwarding stream: System.ObjectDisposedException: Cannot access a disposed object.
+Object name: 'SshChannel'.
+   at Microsoft.DevTunnels.Ssh.SshChannel.SendAsync(Buffer data, CancellationToken cancellation)
+   at Microsoft.DevTunnels.Ssh.SshStream.WriteAsync(Byte[] buffer, Int32 offset, Int32 count, CancellationToken cancellation)
+   at Microsoft.DevTunnels.Ssh.Tcp.StreamForwarder.ForwardStreamAsync(Stream source, Stream destination, CancellationToken cancellation)
+   at Microsoft.DevTunnels.Ssh.Tcp.StreamForwarder.ForwardStreamAsync(Stream localStream, Stream remoteStream)
+   at Microsoft.DevTunnels.Ssh.Tcp.StreamForwarder.ForwardStreamAsync()
+ClientSSH: PortForwardingService unexpected error forwarding stream: System.ObjectDisposedException: Cannot access a disposed object.
+Object name: 'SshChannel'.
+   at Microsoft.DevTunnels.Ssh.SshChannel.SendAsync(Buffer data, CancellationToken cancellation)
+   at Microsoft.DevTunnels.Ssh.SshStream.WriteAsync(Byte[] buffer, Int32 offset, Int32 count, CancellationToken cancellation)
+   at Microsoft.DevTunnels.Ssh.Tcp.StreamForwarder.ForwardStreamAsync(Stream source, Stream destination, CancellationToken cancellation)
+   at Microsoft.DevTunnels.Ssh.Tcp.StreamForwarder.ForwardStreamAsync(Stream localStream, Stream remoteStream)
+   at Microsoft.DevTunnels.Ssh.Tcp.StreamForwarder.ForwardStreamAsync()
+ClientSSH: PortForwardingService unexpected error forwarding stream: System.ObjectDisposedException: Cannot access a disposed object.
+Object name: 'SshChannel'.
+   at Microsoft.DevTunnels.Ssh.SshChannel.SendAsync(Buffer data, CancellationToken cancellation)
+   at Microsoft.DevTunnels.Ssh.SshStream.WriteAsync(Byte[] buffer, Int32 offset, Int32 count, CancellationToken cancellation)
+   at Microsoft.DevTunnels.Ssh.Tcp.StreamForwarder.ForwardStreamAsync(Stream source, Stream destination, CancellationToken cancellation)
+   at Microsoft.DevTunnels.Ssh.Tcp.StreamForwarder.ForwardStreamAsync(Stream localStream, Stream remoteStream)
+   at Microsoft.DevTunnels.Ssh.Tcp.StreamForwarder.ForwardStreamAsync()
+ClientSSH: PortForwardingService unexpected error forwarding stream: System.ObjectDisposedException: Cannot access a disposed object.
+Object name: 'SshChannel'.
+   at Microsoft.DevTunnels.Ssh.SshChannel.SendAsync(Buffer data, CancellationToken cancellation)
+   at Microsoft.DevTunnels.Ssh.SshStream.WriteAsync(Byte[] buffer, Int32 offset, Int32 count, CancellationToken cancellation)
+   at Microsoft.DevTunnels.Ssh.Tcp.StreamForwarder.ForwardStreamAsync(Stream source, Stream destination, CancellationToken cancellation)
+   at Microsoft.DevTunnels.Ssh.Tcp.StreamForwarder.ForwardStreamAsync(Stream localStream, Stream remoteStream)
+   at Microsoft.DevTunnels.Ssh.Tcp.StreamForwarder.ForwardStreamAsync()
+ClientSSH: PortForwardingService connection  to localhost:5000 failed: No se puede establecer una conexi¢n ya que el equipo de destino deneg¢ expresamente dicha conexi¢n.
+ClientSSH: SshChannel(Type: forwarded-tcpip, Id: 0, RemoteId: 0) send window is full. Waiting for window adjustment before sending.
+ClientSSH: SshChannel(Type: forwarded-tcpip, Id: 0, RemoteId: 0) send window is full. Waiting for window adjustment before sending.
+ClientSSH: SshChannel(Type: forwarded-tcpip, Id: 0, RemoteId: 0) send window is full. Waiting for window adjustment before sending.
+ClientSSH: SshChannel(Type: forwarded-tcpip, Id: 0, RemoteId: 0) send window is full. Waiting for window adjustment before sending.
+ClientSSH: SshChannel(Type: forwarded-tcpip, Id: 0, RemoteId: 0) send window is full. Waiting for window adjustment before sending.
+WS.R: Socket closed prematurely exception: System.Net.WebSockets.WebSocketException (0x80004005): The remote party closed the WebSocket connection without completing the close handshake.
+ ---> System.IO.IOException: Unable to read data from the transport connection: Se ha forzado la interrupci¢n de una conexi¢n existente por el host remoto..
+ ---> System.Net.Sockets.SocketException (10054): Se ha forzado la interrupci¢n de una conexi¢n existente por el host remoto.
+   --- End of inner exception stack trace ---
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource<System.Int32>.GetResult(Int16 token)
+   at System.Net.Security.SslStream.EnsureFullTlsFrameAsync[TIOAdapter](CancellationToken cancellationToken, Int32 estimatedSize)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at System.Net.Security.SslStream.ReadAsyncInternal[TIOAdapter](Memory`1 buffer, CancellationToken cancellationToken)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at System.Net.Http.HttpConnection.ReadBufferedAsyncCore(Memory`1 destination)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at System.Net.Http.HttpConnection.RawConnectionStream.ReadAsync(Memory`1 buffer, CancellationToken cancellationToken)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at System.IO.Stream.ReadAtLeastAsyncCore(Memory`1 buffer, Int32 minimumBytes, Boolean throwOnEndOfStream, CancellationToken cancellationToken)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at System.Net.WebSockets.ManagedWebSocket.EnsureBufferContainsAsync(Int32 minimumRequiredBytes, CancellationToken cancellationToken)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)
+   at System.Net.WebSockets.ManagedWebSocket.ReceiveAsyncPrivate[TResult](Memory`1 payloadBuffer, CancellationToken cancellationToken)
+   at System.Net.WebSockets.ManagedWebSocket.ReceiveAsyncPrivate[TResult](Memory`1 payloadBuffer, CancellationToken cancellationToken)
+   at Microsoft.DevTunnels.Connections.WebSocketStream.ReadAsync(Memory`1 buffer, CancellationToken cancellationToken), SocketState=Aborted, CloseStatus=, CloseStatusDescription=
+Connection to host tunnel relay closed. Connection lost.. Reconnecting.
+ClientSSH: Session closed unexpectedly due to ConnectionLost, "Connection lost.
+Reason: ConnectionLost"
+Microsoft.DevTunnels.Ssh.SshConnectionException: Connection lost.
+Reason: ConnectionLost
+ ---> Microsoft.DevTunnels.Ssh.SshConnectionException: Connection lost.
+Reason: ConnectionLost
+   at Microsoft.DevTunnels.Ssh.SshStream.DequeueBuffer()
+   at Microsoft.DevTunnels.Ssh.SshStream.ReadAsync(Byte[] buffer, Int32 offset, Int32 count, CancellationToken cancellation)
+   at Microsoft.DevTunnels.Ssh.IO.SshProtocol.ReadAsync(Buffer buffer, CancellationToken cancellation)
+   --- End of inner exception stack trace ---
+   at Microsoft.DevTunnels.Ssh.IO.SshProtocol.ReadAsync(Buffer buffer, CancellationToken cancellation)
+   at Microsoft.DevTunnels.Ssh.IO.SshProtocol.ReceiveMessageAsync(CancellationToken cancellation)
+   at Microsoft.DevTunnels.Ssh.SshSession.ReceiveAndHandleOneMessageAsync(CancellationToken cancellation)
+ClientSSH: Session closed unexpectedly due to ConnectionLost, "Connection lost.
+Reason: ConnectionLost"
+Microsoft.DevTunnels.Ssh.SshConnectionException: Connection lost.
+Reason: ConnectionLost
+ ---> Microsoft.DevTunnels.Ssh.SshConnectionException: Connection lost.
+Reason: ConnectionLost
+   at Microsoft.DevTunnels.Ssh.SshStream.DequeueBuffer()
+   at Microsoft.DevTunnels.Ssh.SshStream.ReadAsync(Byte[] buffer, Int32 offset, Int32 count, CancellationToken cancellation)
+   at Microsoft.DevTunnels.Ssh.IO.SshProtocol.ReadAsync(Buffer buffer, CancellationToken cancellation)
+   --- End of inner exception stack trace ---
+   at Microsoft.DevTunnels.Ssh.IO.SshProtocol.ReadAsync(Buffer buffer, CancellationToken cancellation)
+   at Microsoft.DevTunnels.Ssh.IO.SshProtocol.ReceiveMessageAsync(CancellationToken cancellation)
+   at Microsoft.DevTunnels.Ssh.SshSession.ReceiveAndHandleOneMessageAsync(CancellationToken cancellation)
+ClientSSH: Session closed unexpectedly due to ConnectionLost, "Connection lost.
+Reason: ConnectionLost"
+Microsoft.DevTunnels.Ssh.SshConnectionException: Connection lost.
+Reason: ConnectionLost
+ ---> Microsoft.DevTunnels.Ssh.SshConnectionException: Connection lost.
+Reason: ConnectionLost
+   at Microsoft.DevTunnels.Ssh.SshStream.DequeueBuffer()
+   at Microsoft.DevTunnels.Ssh.SshStream.ReadAsync(Byte[] buffer, Int32 offset, Int32 count, CancellationToken cancellation)
+   at Microsoft.DevTunnels.Ssh.IO.SshProtocol.ReadAsync(Buffer buffer, CancellationToken cancellation)
+   --- End of inner exception stack trace ---
+   at Microsoft.DevTunnels.Ssh.IO.SshProtocol.ReadAsync(Buffer buffer, CancellationToken cancellation)
+   at Microsoft.DevTunnels.Ssh.IO.SshProtocol.ReceiveMessageAsync(CancellationToken cancellation)
+   at Microsoft.DevTunnels.Ssh.SshSession.ReceiveAndHandleOneMessageAsync(CancellationToken cancellation)
+ClientSSH: Session closed unexpectedly due to ConnectionLost, "Connection lost.
+Reason: ConnectionLost"
+Microsoft.DevTunnels.Ssh.SshConnectionException: Connection lost.
+Reason: ConnectionLost
+ ---> Microsoft.DevTunnels.Ssh.SshConnectionException: Connection lost.
+Reason: ConnectionLost
+   at Microsoft.DevTunnels.Ssh.SshStream.DequeueBuffer()
+   at Microsoft.DevTunnels.Ssh.SshStream.ReadAsync(Byte[] buffer, Int32 offset, Int32 count, CancellationToken cancellation)
+   at Microsoft.DevTunnels.Ssh.IO.SshProtocol.ReadAsync(Buffer buffer, CancellationToken cancellation)
+   --- End of inner exception stack trace ---
+   at Microsoft.DevTunnels.Ssh.IO.SshProtocol.ReadAsync(Buffer buffer, CancellationToken cancellation)
+   at Microsoft.DevTunnels.Ssh.IO.SshProtocol.ReceiveMessageAsync(CancellationToken cancellation)
+   at Microsoft.DevTunnels.Ssh.SshSession.ReceiveAndHandleOneMessageAsync(CancellationToken cancellation)
+ClientSSH: Session closed unexpectedly due to ConnectionLost, "Connection lost.
+Reason: ConnectionLost"
+Microsoft.DevTunnels.Ssh.SshConnectionException: Connection lost.
+Reason: ConnectionLost
+ ---> Microsoft.DevTunnels.Ssh.SshConnectionException: Connection lost.
+Reason: ConnectionLost
+   at Microsoft.DevTunnels.Ssh.SshStream.DequeueBuffer()
+   at Microsoft.DevTunnels.Ssh.SshStream.ReadAsync(Byte[] buffer, Int32 offset, Int32 count, CancellationToken cancellation)
+   at Microsoft.DevTunnels.Ssh.IO.SshProtocol.ReadAsync(Buffer buffer, CancellationToken cancellation)
+   --- End of inner exception stack trace ---
+   at Microsoft.DevTunnels.Ssh.IO.SshProtocol.ReadAsync(Buffer buffer, CancellationToken cancellation)
+   at Microsoft.DevTunnels.Ssh.IO.SshProtocol.ReceiveMessageAsync(CancellationToken cancellation)
+   at Microsoft.DevTunnels.Ssh.SshSession.ReceiveAndHandleOneMessageAsync(CancellationToken cancellation)
+Connection to host tunnel relay restored.
+ClientSSH: PortForwardingService unexpected error forwarding stream: System.ObjectDisposedException: Cannot access a disposed object.
+Object name: 'SshChannel'.
+   at Microsoft.DevTunnels.Ssh.SshChannel.SendAsync(Buffer data, CancellationToken cancellation)
+   at Microsoft.DevTunnels.Ssh.SshStream.WriteAsync(Byte[] buffer, Int32 offset, Int32 count, CancellationToken cancellation)
+   at Microsoft.DevTunnels.Ssh.Tcp.StreamForwarder.ForwardStreamAsync(Stream source, Stream destination, CancellationToken cancellation)
+   at Microsoft.DevTunnels.Ssh.Tcp.StreamForwarder.ForwardStreamAsync(Stream localStream, Stream remoteStream)
+   at Microsoft.DevTunnels.Ssh.Tcp.StreamForwarder.ForwardStreamAsync()
+ClientSSH: SshServerSession:18469238: Invalid channel ID 0 in ChannelDataMessage
+ClientSSH: PortForwardingService unexpected error forwarding stream: System.ObjectDisposedException: Cannot access a disposed object.
+Object name: 'SshChannel'.
+   at Microsoft.DevTunnels.Ssh.SshChannel.SendAsync(Buffer data, CancellationToken cancellation)
+   at Microsoft.DevTunnels.Ssh.SshStream.WriteAsync(Byte[] buffer, Int32 offset, Int32 count, CancellationToken cancellation)
+   at Microsoft.DevTunnels.Ssh.Tcp.StreamForwarder.ForwardStreamAsync(Stream source, Stream destination, CancellationToken cancellation)
+   at Microsoft.DevTunnels.Ssh.Tcp.StreamForwarder.ForwardStreamAsync(Stream localStream, Stream remoteStream)
+   at Microsoft.DevTunnels.Ssh.Tcp.StreamForwarder.ForwardStreamAsync()
+ClientSSH: Session closed unexpectedly due to ConnectionLost, "Connection lost."
+Microsoft.DevTunnels.Ssh.SshConnectionException: Connection lost.
+Reason: ConnectionLost
+devtunnel: Error running client SSH session: Session closed while encrypting.
+Reason: ConnectionLost
+ClientSSH: Session closed unexpectedly due to ConnectionLost, "Connection lost."
+Microsoft.DevTunnels.Ssh.SshConnectionException: Connection lost.
+Reason: ConnectionLost
+ClientSSH: Session closed unexpectedly due to ConnectionLost, "Connection lost."
+Microsoft.DevTunnels.Ssh.SshConnectionException: Connection lost.
+Reason: ConnectionLost
+ClientSSH: Session closed unexpectedly due to ConnectionLost, "Connection lost."
+Microsoft.DevTunnels.Ssh.SshConnectionException: Connection lost.
+Reason: ConnectionLost
+devtunnel: Error running client SSH session: Session closed while encrypting.
+Reason: ConnectionLost
+devtunnel: Error running client SSH session: Failed to read the protocol version
+Reason: ProtocolError
+devtunnel: Error running client SSH session: Session closed while encrypting.
+Reason: ConnectionLost
+devtunnel: Error running client SSH session: Failed to read the protocol version
+Reason: ProtocolError
+ClientSSH: Session closed unexpectedly due to ConnectionLost, "Connection lost."
+Microsoft.DevTunnels.Ssh.SshConnectionException: Connection lost.
+Reason: ConnectionLost
+devtunnel: Error running client SSH session: Session closed while encrypting.
+Reason: ConnectionLost
+devtunnel: Error running client SSH session: Session closed while encrypting.
+Reason: ConnectionLost
+ClientSSH: Session closed unexpectedly due to ConnectionLost, "Connection lost."
+Microsoft.DevTunnels.Ssh.SshConnectionException: Connection lost.
+Reason: ConnectionLost
+devtunnel: Error running client SSH session: Session closed while encrypting.
+Reason: ConnectionLost
+ClientSSH: Session closed unexpectedly due to ConnectionLost, "Connection lost."
+Microsoft.DevTunnels.Ssh.SshConnectionException: Connection lost.
+Reason: ConnectionLost
+devtunnel: Error running client SSH session: Failed to read the protocol version
+Reason: ProtocolError
+devtunnel: Error running client SSH session: Session closed while encrypting.
+Reason: ConnectionLost
+ClientSSH: Session closed unexpectedly due to ConnectionLost, "Connection lost."
+Microsoft.DevTunnels.Ssh.SshConnectionException: Connection lost.
+Reason: ConnectionLost
+ClientSSH: Session closed unexpectedly due to ConnectionLost, "Connection lost."
+Microsoft.DevTunnels.Ssh.SshConnectionException: Connection lost.
+Reason: ConnectionLost
+ClientSSH: Session closed unexpectedly due to ConnectionLost, "Connection lost."
+Microsoft.DevTunnels.Ssh.SshConnectionException: Connection lost.
+Reason: ConnectionLost
+devtunnel: Error running client SSH session: Session closed while encrypting.
+Reason: ConnectionLost
+devtunnel: Error running client SSH session: Session closed while encrypting.
+Reason: ConnectionLost
+devtunnel: Error running client SSH session: Session closed while encrypting.
+Reason: ConnectionLost
+devtunnel: Error running client SSH session: Failed to read the protocol version
+Reason: ProtocolError
+ClientSSH: Session closed unexpectedly due to ConnectionLost, "Connection lost."
+Microsoft.DevTunnels.Ssh.SshConnectionException: Connection lost.
+Reason: ConnectionLost
+devtunnel: Error running client SSH session: Failed to read the protocol version
+Reason: ProtocolError
+devtunnel: Error running client SSH session: Session closed while encrypting.
+Reason: ConnectionLost
+ClientSSH: Session closed unexpectedly due to ConnectionLost, "Connection lost."
+Microsoft.DevTunnels.Ssh.SshConnectionException: Connection lost.
+Reason: ConnectionLost
+devtunnel: Error running client SSH session: Session closed while encrypting.
+Reason: ConnectionLost
+WS.R: Socket closed prematurely exception: System.Net.WebSockets.WebSocketException (0x80004005): The remote party closed the WebSocket connection without completing the close handshake.
+ ---> System.IO.IOException: Unable to read data from the transport connection: Se ha forzado la interrupci¢n de una conexi¢n existente por el host remoto..
+ ---> System.Net.Sockets.SocketException (10054): Se ha forzado la interrupci¢n de una conexi¢n existente por el host remoto.
+   --- End of inner exception stack trace ---
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource<System.Int32>.GetResult(Int16 token)
+   at System.Net.Security.SslStream.EnsureFullTlsFrameAsync[TIOAdapter](CancellationToken cancellationToken, Int32 estimatedSize)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at System.Net.Security.SslStream.ReadAsyncInternal[TIOAdapter](Memory`1 buffer, CancellationToken cancellationToken)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at System.Net.Http.HttpConnection.ReadBufferedAsyncCore(Memory`1 destination)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at System.Net.Http.HttpConnection.RawConnectionStream.ReadAsync(Memory`1 buffer, CancellationToken cancellationToken)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at System.IO.Stream.ReadAtLeastAsyncCore(Memory`1 buffer, Int32 minimumBytes, Boolean throwOnEndOfStream, CancellationToken cancellationToken)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at System.Net.WebSockets.ManagedWebSocket.EnsureBufferContainsAsync(Int32 minimumRequiredBytes, CancellationToken cancellationToken)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)
+   at System.Net.WebSockets.ManagedWebSocket.ReceiveAsyncPrivate[TResult](Memory`1 payloadBuffer, CancellationToken cancellationToken)
+   at System.Net.WebSockets.ManagedWebSocket.ReceiveAsyncPrivate[TResult](Memory`1 payloadBuffer, CancellationToken cancellationToken)
+   at Microsoft.DevTunnels.Connections.WebSocketStream.ReadAsync(Memory`1 buffer, CancellationToken cancellationToken), SocketState=Aborted, CloseStatus=, CloseStatusDescription=
+Connection to host tunnel relay closed. Connection lost.. Reconnecting.
+Refreshing tunnel.
+devtunnel: Error connecting host tunnel session: Not authorizedUnauthorized. Refreshed tunnel access token is not valid. Tunnel service response status code: Unauthorized
+Request ID: e708664a-212e-459f-aa8c-fa1a0c406db8

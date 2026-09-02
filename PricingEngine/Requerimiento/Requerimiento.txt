@@ -1,0 +1,231 @@
+PRICES — Intelligent Pricing & Sales Decision Engine
+Arquitectura General, Modelo Conceptual y Diseño del Sistema
+Como Arquitecto Senior e Ingeniero de Datos, presento el diseño completo del proyecto PRICES. La solución prioriza rendimiento set-based sobre T-SQL, desacoplamiento con la API de Mercado Libre, explicabilidad completa de cada decisión y flexibilidad multi-empresa.
+
+ETAPA 1: Arquitectura General del Sistema
+El principio rector es la separación de responsabilidades en capas asíncronas. El motor de decisiones no depende de llamadas HTTP vivas; opera de forma determinista y set-based sobre una base de datos SQL Server que actúa como single source of truth.
+
+1.1 Diagrama de Flujo de Datos y Componentes
+[ Mercado Libre API ]
+       │
+       ▼  (Proceso Ingesta / Workers / Cron)
+┌─────────────────────────────────────────────────────────┐
+│ CAPA DE INGESTA Y NORMALIZACIÓN                         │
+│ - Extrae items, órdenes, publicaciones, competencia     │
+│ - Transforma JSON/Payloads en T-SQL Staging Tables      │
+└──────────────────────────┬──────────────────────────────┘
+                           │
+                           ▼
+┌─────────────────────────────────────────────────────────┐
+│ CAPA DE ALMACENAMIENTO (STORAGE & SNAPSHOTS)            │
+│ - Tablas Core: Productos, Precios, Costos, Stock, Ventas│
+│ - Snapshots Competencia e Históricos de Contexto        │
+└──────────────────────────┬──────────────────────────────┘
+                           │
+                           ▼
+┌─────────────────────────────────────────────────────────┐
+│ CAPA ANALÍTICA Y PRE-CÁLCULO                            │
+│ - Cálculo de métricas: Vel. Venta, Días Stock, Margen   │
+│ - Cálculo de Competencia: Min, Max, Mediana, Relevante  │
+└──────────────────────────┬──────────────────────────────┘
+                           │
+                           ▼
+┌─────────────────────────────────────────────────────────┐
+│ MOTOR DE DECISIONES (PRICES ENGINE)                     │
+│ - spCalcularDecision (Filtro por Empresa / Lote)        │
+│ - Evaluador de Reglas Parametrizables                   │
+│ - Resolvedor de Conflictos y Prioridades                │
+│ - Anti-Oscilaciones (Cooldown, Histeresis)              │
+│ - Modo Simulación / Producción                          │
+└──────────────────────────┬──────────────────────────────┘
+                           │
+                           ├────────────────────────────────┐
+                           ▼                                ▼
+┌──────────────────────────────────────┐ ┌──────────────────────────────────┐
+│ CAPA DE AUDITORÍA Y HISTORIAL        │ │ CAPA DE EJECUCIÓN (OUTBOX)       │
+│ - Registro explicable (Logs)         │ │ - Cola de ejecución de cambios   │
+│ - Métricas para Backtesting          │ │ - Worker pushing hacia ML API    │
+└──────────────────────────────────────┘ └──────────────────────────────────┘
+
+1.2 Flujo de Procesamiento Interno
+Sincronización: Workers externos descargan del API de MELI publicaciones, pedidos y snapshots de competencia, insertándolos en tablas Staging.
+
+Consolidación: Procedimientos ETL/Merge consolidan datos a las tablas relacionales de la empresa correspondiente (EmpresaID, CuentaMLID).
+
+Pre-cálculo de Métricas: Se actualizan las tablas resúmenes de ventas (7, 15, 30, 90 días), velocidad de venta diaria y agregados competitivos.
+
+Ejecución del Motor (spCalcularDecision):
+
+Carga la estrategia activa de la empresa y sus reglas de negocio asociadas ordenadas por prioridad.
+
+Aplica evaluaciones vectorizadas (SET-BASED) en tablas temporales/TVPs.
+
+Aplica filtros duros de seguridad (Límites de margen, Precio Mín/Máx).
+
+Valida reglas de Anti-Oscilación (Cooldown/Histéresis).
+
+Genera la decisión final y su explicación estructurada.
+
+Persistencia / Salida: Si @ModoSimulacion = 0, la decisión se encola en ColaEjecucionML y se audita en HistorialDecisiones. Si @ModoSimulacion = 1, solo se registra en la estructura de simulación/auditoría.
+
+ETAPA 2: Modelo de Datos Relacional
+A continuación se detalla el modelo relacional normalizado con soporte nativo para Multi-empresa (EmpresaID), auditoría y alto rendimiento.
+┌─────────────────┐       ┌─────────────────┐       ┌──────────────────────┐
+│   EMPRESAS      │1     N│  CUENTAS_MELI   │1     N│      PRODUCTOS       │
+├─────────────────┤───────├─────────────────┤───────├──────────────────────┤
+│ EmpresaID (PK)  │       │ CuentaMLID (PK) │       │ ProductoID (PK)      │
+│ RazonSocial     │       │ EmpresaID (FK)  │       │ EmpresaID (FK)       │
+└─────────────────┘       └─────────────────┘       │ SKU                  │
+                                                    └──────────┬───────────┘
+                                                               │ 1
+                                                               │
+                       ┌───────────────────────────────────────┴───────────────────────────────────────┐
+                       │                                       │                                       │
+                       ▼ N                                     ▼ N                                     ▼ N
+┌──────────────────────────────┐        ┌──────────────────────────────┐        ┌──────────────────────────────┐
+│        PUBLICACIONES         │        │         COSTOS_ITEM          │        │        STOCK_ESTADO          │
+├──────────────────────────────┤        ├──────────────────────────────┤        ├──────────────────────────────┤
+│ PublicacionID (PK)           │        │ CostoID (PK)                 │        │ StockID (PK)                 │
+│ ProductoID (FK)              │        │ ProductoID (FK)              │        │ ProductoID (FK)              │
+│ CuentaMLID (FK)              │        │ CostoCompra, IVA, Envio      │        │ StockActual, Disponible      │
+│ MeliItemID                   │        │ ComisionML, Publicidad, etc. │        │ Min, Max, Reservado          │
+│ TipoPublicacion, Estado      │        └──────────────────────────────┘        └──────────────────────────────┘
+│ PrecioActual, Min, Max, Obj  │
+└──────────────┬───────────────┘
+               │ 1
+               ├───────────────────────────────┬───────────────────────────────┐
+               ▼ N                             ▼ N                             ▼ N
+┌──────────────────────────────┐┌──────────────────────────────┐┌──────────────────────────────┐
+│    COMPETENCIA_SNAPSHOT      ││     METRICAS_VENTAS_HIST     ││     DECISIONES_HISTORIAL     │
+├──────────────────────────────┤├──────────────────────────────┤├──────────────────────────────┤
+│ SnapshotID (PK)              ││ MetricaID (PK)               ││ DecisionID (PK)              │
+│ PublicacionID (FK)           ││ PublicacionID (FK)           ││ PublicacionID (FK)           │
+│ CompetidorItemID, Precio     ││ Ventas7D, 15D, 30D, 90D      ││ PrecioAnterior, PrecioNuevo  │
+│ EsDirecto, Relevancia        ││ VelVentaDiaria, Tendencia    ││ Accion, Motivo, ReglaGanadora│
+└──────────────────────────────┘└──────────────────────────────┘└──────────────────────────────┘
+
+┌─────────────────┐1      N┌──────────────────────┐
+│     MONEDAS     │────────│    COTIZACIONES      │
+├─────────────────┤        ├──────────────────────┤
+│ MonedaID (PK)   │        │ CotizacionID (PK)    │
+│ CodigoISO       │        │ MonedaID (FK)        │
+│ Nombre, Simbolo │        │ Cotizacion, Fecha    │
+└────────┬────────┘        └──────────────────────┘
+         │ 1                         
+         │ N
+┌────────▼────────────────────────────────────────┐
+│              PARAMETROS_GENERALES               │
+├─────────────────────────────────────────────────┤
+│ ParametroGeneralID (PK)                         │
+│ EmpresaID (FK) ──────────────── EMPRESAS (1:1)  │
+│ MonedaPrincipalID (FK)                          │
+│ MonedaSecundariaID (FK)                         │
+└─────────────────────────────────────────────────┘
+ 
+ETAPA 3: Motores de Reglas, Estrategias y Prioridades
+El sistema desacopla la lógica de las reglas del código procedural mediante una arquitectura parametrizable por Estrategia y Pesos/Prioridades.
+
+3.1 Estructura de Estrategias y Prioridades
+Una Estrategia (ej. AGRESIVA_VOLUMEN, MAXIMO_MARGEN, LIQUIDACION_STOCK) se compone de un conjunto de reglas asociadas con prioridades y parámetros específicos por empresa.
+
++------+----------------------------+-------------------+---------------------------------------------------------------+---------------------------------------------------------------+
+| JER. | NIVEL DE REGLA             | TIPO              | DESCRIPCION                                                    | EJEMPLO DE ACCION EN CONFLICTO                                |
++------+----------------------------+-------------------+---------------------------------------------------------------+---------------------------------------------------------------+
+| P1   | Filtro Duro de Seguridad   | HARD_RESTRICTION  | Previene perdidas, infracciones y violaciones de precio       | Anula cualquier intento de bajar precio si viola el Margen     |
+|      |                            |                   | minimo/maximo legal o comercial.                              | Minimo.                                                       |
++------+----------------------------+-------------------+---------------------------------------------------------------+---------------------------------------------------------------+
+| P2   | Anti-Oscilacion / Cooldown | PROTECTION        | Evita bucles de cambios de precios (guerras de precios)       | Bloquea un cambio si se modifico el precio hace menos de N    |
+|      |                            |                   | e histeresis.                                                  | horas.                                                        |
++------+----------------------------+-------------------+---------------------------------------------------------------+---------------------------------------------------------------+
+| P3   | Reglas Operativas de Stock | OPERATIONAL       | Protege contra quiebre de stock o liquida exceso.             | Aumenta precio si stock es CRITICO e ignora bajas de           |
+|      |                            |                   |                                                               | competencia.                                                  |
++------+----------------------------+-------------------+---------------------------------------------------------------+---------------------------------------------------------------+
+| P4   | Reglas de Competitividad   | MARKET            | Optimiza posicion contra competidores directos/relevantes.   | Ajusta precio para igualar/superar competidor relevante.      |
++------+----------------------------+-------------------+---------------------------------------------------------------+---------------------------------------------------------------+
+| P5   | Reglas de Oportunidad      | OPPORTUNITY       | Captura margen adicional en ausencia de competencia o alta   | Sube precio si no hay competidores directos o la demanda     |
+|      |                            |                   | demanda.                                                       | se acelera.                                                    |
++------+----------------------------+-------------------+---------------------------------------------------------------+---------------------------------------------------------------+
+
+PRIORIDAD DE EJECUCION:
+P1 > P2 > P3 > P4 > P5
+
+REGLA GENERAL:
+Una regla de mayor prioridad siempre tiene precedencia sobre una
+regla de menor prioridad cuando existe conflicto.
+
+ETAPA 4: Sistema de Explicabilidad y Anti-Oscilación
+4.1 Sistema de Explicabilidad
+Para que cada decisión sea auditable, el motor guarda una traza detallada en formato JSON/Relacional con el desglose de evaluación:
+
+PuntajesEvaluados: Lista de reglas analizadas con sus valores calculados.
+
+ReglasDescartadas: Reglas activadas cuyo resultado fue bloqueado por una regla de mayor prioridad (ej. Margen Mínimo).
+
+ReglaGanadora: Regla que definió la decisión final.
+
+ScoreConfianza: Indicador ponderado (0.00 a 1.00) basado en volumen de datos (cantidad de competidores, estabilidad de ventas).
+
+4.2 Mecanismo Anti-Oscilación (Cooldown e Histéresis)
+Para prevenir oscilaciones agresivas de precios causadas por bots competidores:
+
+Cooldown Period: Define un tiempo mínimo configurable (ej. 12 horas) entre cambios de precios para un mismo producto, a menos que la regla sea de tipo EMERGENCY_STOCK.
+
+Histéresis (Threshold de Cambio): No se ejecuta ningún cambio de precio si la variación calculada no supera un umbral mínimo (ej. |PrecioNuevo - PrecioActual| / PrecioActual < 1.5%).
+
+Límite de Variación Máxima por Ejecución: Máximo decremento/incremento permitido por corrida (ej. no cambiar más de un ±5% de una sola vez).
+
+ETAPA 5: Script DDL Completo en SQL Server (T-SQL). (Ver archivo "Estructura.sql")
+
+ETAPA 6: Stored Procedures y Funciones
+6.1 Funciones Auxiliares para Cálculos de Margen y Competencia: fn_CalcularMargenNetoPorc. (Ver archivo "fn_CalcularMargenNetoPorc.sql") 
+
+6.2 Stored Procedure Core 
+Este procedimiento implementa la toma de decisiones con ejecución Set-Based. Evalúa las reglas de negocio, los límites duros y el mecanismo anti-oscilación en una sola corrida: spCalcularDecision. (Ver archivo "spCalcularDecision.sql") 
+
+ETAPA 7: Carga de Datos de Prueba (Seed Data)
+Script para simular casos de prueba representativos. (Ver archivo "Simulacion.sql")
+
+ETAPA 8: Casos de Prueba y Ejecución
+8.1 Ejecución en Modo Simulación (Ver archivo "Execute sp.sql")
+Para evaluar las recomendaciones del motor sin enviar datos a Mercado Libre:
+
++---------------+------------+-------------+---------------+------------------+---------------------------------------------------------------+-----------------+---------------------+--------------------+
+| PUBLICACIONID | MELIITEMID | PRECIOACTUAL | PRECIOSUGERIDO | ACCION           | MOTIVO                                                        | MARGEN ACTUAL % | MARGEN PROYECTADO % | CLASIFICACION STOCK|
++---------------+------------+-------------+---------------+------------------+---------------------------------------------------------------+-----------------+---------------------+--------------------+
+| 1             | MLA1001    | 100000.00   | 100000.00     | NO_MODIFICAR     | BLOQUEO SEGURIDAD: La baja sugerida viola el margen minimo    | 3.20%           | -10.50%             | NORMAL             |
+|               |            |             |               |                  | permitido (15.00%).                                          |                 |                     |                    |
++---------------+------------+-------------+---------------+------------------+---------------------------------------------------------------+-----------------+---------------------+--------------------+
+| 2             | MLA1002    | 60000.00    | 63000.00      | AUMENTAR_PRECIO  | Stock en nivel CRITICO. Se incrementa precio 5% para          | 31.40%          | 33.80%              | CRITICO            |
+|               |            |             |               |                  | proteger quiebre.                                             |                 |                     |                    |
++---------------+------------+-------------+---------------+------------------+---------------------------------------------------------------+-----------------+---------------------+--------------------+
+| 3             | MLA1003    | 12000.00    | 11160.00      | DISMINUIR_PRECIO | Exceso de stock detectado con baja rotacion. Aplicando        | 61.20%          | 58.40%              | EXCESO             |
+|               |            |             |               |                  | descuento de liquidacion.                                     |                 |                     |                    |
++---------------+------------+-------------+---------------+------------------+---------------------------------------------------------------+-----------------+---------------------+--------------------+    
+
+ETAPA 9: Arquitectura de Backtesting
+Para verificar si las estrategias mejoran la rentabilidad basándose en datos históricos, se utiliza la siguiente tabla y procedimiento. (Ver archivo "Backtesting.sql") 
+
+ETAPA 10: Roadmap de Producción
+Fase MVP (Semanas 1-4):
+
+Despliegue de scripts DDL e índices en entorno SQL Server.
+
+Conexión del Worker Ingestion API de Mercado Libre hacia las tablas PublicacionesML y StockEstado.
+
+Ejecución programada de spCalcularDecision en Modo Simulación (@ModoSimulacion = 1).
+
+Auditoría diaria de explicabilidad con los usuarios de negocio.
+
+Fase Beta (Semanas 5-6):
+
+Activación del envío en modo producción (@ModoSimulacion = 0) para un subconjunto restringido de SKUs (Piloto del 10% del catálogo).
+
+Monitoreo del mecanismo Anti-Oscilaciones y de los tiempos de la cola ColaEjecucionML.
+
+Fase Producción y Escalamiento (Semanas 7+):
+
+Habilitación de la automatización completa del catálogo.
+
+Activación del módulo de Backtesting continuo para tuning automático de las prioridades de reglas.
+
+Mantenimiento programado de índices de SQL Server para procesamiento por lotes masivos.
