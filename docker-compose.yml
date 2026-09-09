@@ -1,0 +1,82 @@
+version: '3.9'
+
+services:
+  # Motor (API Backend)
+  motor:
+    build:
+      context: ./PricingEngine
+      dockerfile: Dockerfile
+    container_name: pricing-motor
+    ports:
+      - "5000:5000"
+      - "5001:5001"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__PricingDb=${CONNECTION_STRING}
+      - MercadoLibre__ApiBaseUrl=${ML_API_BASE_URL:-https://api.mercadolibre.com}
+      - MercadoLibre__ClientId=${ML_CLIENT_ID}
+      - MercadoLibre__ClientSecret=${ML_CLIENT_SECRET}
+    depends_on:
+      - sqlserver
+    networks:
+      - pricing-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Cliente (Frontend)
+  cliente:
+    build:
+      context: ./PricingClient/pricing-ui
+      dockerfile: Dockerfile
+    container_name: pricing-cliente
+    ports:
+      - "3000:3000"
+    environment:
+      - VITE_API_BASE_URL=${API_BASE_URL:-http://motor:5000}
+    depends_on:
+      - motor
+    networks:
+      - pricing-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+  # SQL Server (opcional si tienes uno local)
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: pricing-sqlserver
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=${SQL_SA_PASSWORD}
+      - MSSQL_PID=Developer
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+      - ${SQL_INIT_SCRIPT:-./PricingEngine/SQL/init.sql}:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - pricing-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "/opt/mssql-tools18/bin/sqlcmd", "-S", "localhost", "-U", "sa", "-P", "${SQL_SA_PASSWORD}", "-Q", "SELECT 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+networks:
+  pricing-network:
+    driver: bridge
+
+volumes:
+  sqlserver-data:
+    driver: local
