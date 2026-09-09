@@ -1,0 +1,138 @@
+name: Build Windows Installers
+
+on:
+  push:
+    branches:
+      - main
+      - claude/motor-cliente-instalacion-i9vvt3
+    paths:
+      - 'PricingEngine/**'
+      - 'PricingClient/**'
+      - 'build-installers/**'
+      - '.github/workflows/build-installers.yml'
+  pull_request:
+    branches:
+      - main
+      - claude/motor-cliente-instalacion-i9vvt3
+
+jobs:
+  build-installers:
+    runs-on: windows-latest
+    name: Build Motor and Cliente Installers
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+
+      - name: Install NSIS
+        run: |
+          choco install nsis -y
+          echo "C:\Program Files\NSIS" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+      - name: Restore NuGet packages
+        run: dotnet restore PricingEngine/src/PricingApi/PricingApi.csproj
+
+      - name: Build Motor
+        run: |
+          cd PricingEngine/src/PricingApi
+          dotnet publish -c Release -o "bin/Release/net10.0/publish" --no-self-contained
+
+      - name: Install Client dependencies
+        run: |
+          cd PricingClient/pricing-ui
+          npm ci
+
+      - name: Build Client
+        run: |
+          cd PricingClient/pricing-ui
+          npm run build
+
+      - name: Create dist directory
+        run: mkdir -p dist
+
+      - name: Build Motor Installer
+        run: |
+          cd build-installers
+          makensis motor-installer.nsi
+
+      - name: Build Client Installer
+        run: |
+          cd build-installers
+          makensis cliente-installer.nsi
+
+      - name: Upload Motor Installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: PricingML-Motor-Setup
+          path: dist/PricingML-Motor-Setup.exe
+          retention-days: 30
+
+      - name: Upload Client Installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: PricingML-Cliente-Setup
+          path: dist/PricingML-Cliente-Setup.exe
+          retention-days: 30
+
+      - name: Create Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: PricingML ${{ github.ref }}
+          body: |
+            ## Instaladores disponibles
+
+            - **Motor**: PricingML-Motor-Setup.exe
+            - **Cliente**: PricingML-Cliente-Setup.exe
+
+            ### Instrucciones de instalación
+
+            1. Descargar ambos instaladores
+            2. Ejecutar PricingML-Motor-Setup.exe
+            3. Ejecutar PricingML-Cliente-Setup.exe
+            4. Acceder a http://localhost:3000
+
+            Ver documentación en `build-installers/README.md`
+          draft: false
+          prerelease: false
+
+      - name: Upload Release Assets
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./dist/PricingML-Motor-Setup.exe
+          asset_name: PricingML-Motor-Setup.exe
+          asset_content_type: application/octet-stream
+
+      - name: Upload Release Asset Client
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./dist/PricingML-Cliente-Setup.exe
+          asset_name: PricingML-Cliente-Setup.exe
+          asset_content_type: application/octet-stream
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          Write-Host "❌ Build failed" -ForegroundColor Red
+          exit 1
