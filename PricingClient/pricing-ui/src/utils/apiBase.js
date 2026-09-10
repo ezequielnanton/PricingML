@@ -10,4 +10,7 @@ const construirApiBaseUrl = () => {
   return `http://${hostname}:5000`
 }
 
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || construirApiBaseUrl()
+// #apiEnTiempoDeEjecucion: el ejecutable del Cliente (PricingCliente.exe) inyecta esta
+// variable al servir index.html, para poder apuntar a un Motor en otra PC sin recompilar.
+export const API_BASE_URL =
+  globalThis.__PRICING_API_BASE__ || import.meta.env.VITE_API_BASE_URL || construirApiBaseUrl()

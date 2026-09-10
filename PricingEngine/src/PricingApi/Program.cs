@@ -2,8 +2,13 @@
 using System.Text.RegularExpressions;
 using Microsoft.Data.SqlClient;
 using PricingAdapter.Adapters;
+using PricingApi;
 using PricingApi.Models;
 using PricingApi.Services;
+
+// #primerArranque: al distribuirse como ejecutable no hay appsettings.json editado a mano,
+// asi que la primera vez se pregunta la conexion a SQL Server y se guarda.
+if (!ArranqueMotor.AsegurarConfiguracion()) return 1;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -57,15 +62,22 @@ builder.Services.AddHostedService<EjecucionAutomaticaHostedService>();
 // Core (CN=localhost, confiado con `dotnet dev-certs https --trust`); como no cubre la IP,
 // el navegador va a mostrar una advertencia de certificado la primera vez -- esperado en
 // desarrollo local, hay que aceptarla manualmente.
-builder.WebHost.UseUrls("http://0.0.0.0:5000", "https://0.0.0.0:5001");
+// #urlsConfigurables: el ejecutable distribuido escucha solo en http (el https de abajo
+// depende del certificado de desarrollo, que no existe en una PC de destino). Si
+// "Urls" esta definido en appsettings.json manda ese valor; si no, se mantiene el
+// comportamiento de desarrollo con https en 5001 para el OAuth de MercadoLibre.
+var urlsConfiguradas = builder.Configuration["Urls"];
+if (string.IsNullOrWhiteSpace(urlsConfiguradas))
+    builder.WebHost.UseUrls("http://0.0.0.0:5000", "https://0.0.0.0:5001");
+else
+    builder.WebHost.UseUrls(urlsConfiguradas.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+// Swagger queda disponible tambien en el ejecutable distribuido: es la forma de verificar
+// que el Motor arranco y responde sin depender del Cliente.
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseCors("AllowFrontend");
 

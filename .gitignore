@@ -3,9 +3,11 @@
 .env.local
 .env.*.local
 
-# Docker
-.docker/
-docker-compose.override.yml
+# Build de React embebido en PricingCliente.exe (lo genera build-exe.ps1)
+PricingClient/PricingClientHost/wwwroot/
+
+# Configuracion generada por los ejecutables en el primer arranque
+PricingCliente.config.json
 
 # IDEs
 .vscode/
