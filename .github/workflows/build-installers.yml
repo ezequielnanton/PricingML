@@ -10,6 +10,8 @@ on:
       - 'PricingClient/**'
       - 'build-installers/**'
       - '.github/workflows/build-installers.yml'
+    tags:
+      - 'v*'
   pull_request:
     branches:
       - main
@@ -80,53 +82,53 @@ jobs:
           path: dist/PricingML-Cliente.msi
           retention-days: 30
 
-      - name: Create Release
+      - name: Create Release with Assets
         if: startsWith(github.ref, 'refs/tags/v')
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ github.ref }}
-          release_name: PricingML ${{ github.ref }}
+          name: PricingML ${{ github.ref_name }}
           body: |
-            ## Instaladores MSI disponibles
+            ## Instaladores MSI - PricingML ${{ github.ref_name }}
 
-            - **Motor**: PricingML-Motor.msi
-            - **Cliente**: PricingML-Cliente.msi
+            ### Descargas
+            - **Motor**: `PricingML-Motor.msi` - Servicio API REST (.NET 10.0)
+            - **Cliente**: `PricingML-Cliente.msi` - Interfaz Web (React 19)
 
-            ### Instrucciones de instalación
+            ### Requisitos del Sistema
+            - Windows 10/11 (64-bit)
+            - .NET 10.0 Runtime
+            - Node.js 18+
+            - SQL Server 2022+ o LocalDB
 
-            1. Descargar ambos instaladores MSI
-            2. Ejecutar PricingML-Motor.msi (configura SQL Server)
-            3. Iniciar servicio "PricingML Motor API" desde Services.msc
-            4. Ejecutar PricingML-Cliente.msi (configura URL del Motor)
-            5. Acceder a http://localhost:3000
+            ### Instrucciones de Instalación
 
-            Ver documentación en `INSTALADORES-MSI.md`
+            1. **Descargar** ambos instaladores desde abajo
+            2. **Ejecutar** `PricingML-Motor.msi`
+               - Responde las preguntas de configuración
+               - Configura conexión SQL Server
+            3. **Iniciar Motor**
+               - Abre Services.msc
+               - Busca "PricingML Motor API"
+               - Click derecho → Iniciar
+            4. **Ejecutar** `PricingML-Cliente.msi`
+               - Configura URL del Motor
+            5. **Acceder** a http://localhost:3000
+
+            ### Documentación
+            - [Guía Instalación](INSTALADORES-MSI.md)
+            - [Guía Técnica](build-installers/README-MSI.md)
+            - [API Swagger](http://localhost:5000/swagger)
+
+            ---
+            **Generado automáticamente por GitHub Actions**
+          files: |
+            dist/PricingML-Motor.msi
+            dist/PricingML-Cliente.msi
           draft: false
           prerelease: false
-
-      - name: Upload Motor Release Asset
-        if: startsWith(github.ref, 'refs/tags/v')
-        uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./dist/PricingML-Motor.msi
-          asset_name: PricingML-Motor.msi
-          asset_content_type: application/octet-stream
-
-      - name: Upload Cliente Release Asset
-        if: startsWith(github.ref, 'refs/tags/v')
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./dist/PricingML-Cliente.msi
-          asset_name: PricingML-Cliente.msi
-          asset_content_type: application/octet-stream
 
       - name: Notify on failure
         if: failure()
