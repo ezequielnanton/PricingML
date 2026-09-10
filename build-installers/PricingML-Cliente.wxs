@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+     xmlns:netfx="http://schemas.microsoft.com/wix/NetFxExtension"
+     xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+
+  <?define ProductVersion="1.0.0.0" ?>
+  <?define ProductName="PricingML Cliente" ?>
+  <?define Manufacturer="PricingML" ?>
+
+  <Product Id="*"
+           Name="$(var.ProductName)"
+           Language="3082"
+           Version="$(var.ProductVersion)"
+           Manufacturer="$(var.Manufacturer)"
+           UpgradeCode="87654321-4321-4321-4321-CBA987654321">
+
+    <Package InstallerVersion="200"
+             Compressed="yes"
+             InstallScope="perMachine"
+             Platform="x64"/>
+
+    <!-- Allow downgrades for development -->
+    <MajorUpgrade DowngradeErrorMessage="A newer version of $(var.ProductName) is already installed."/>
+
+    <!-- Media definition -->
+    <Media Id="1" Cabinet="PricingML-Cliente.cab" EmbedCab="yes"/>
+
+    <!-- Installation directory structure -->
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFiles64Folder">
+        <Directory Id="PricingMLFolder" Name="PricingML">
+          <Directory Id="INSTALLFOLDER" Name="Cliente"/>
+        </Directory>
+      </Directory>
+
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="PricingMLProgramMenu" Name="PricingML"/>
+      </Directory>
+
+      <Directory Id="DesktopFolder" Name="Desktop"/>
+    </Directory>
+
+    <!-- Features -->
+    <Feature Id="ClienteFeature"
+             Title="PricingML Cliente"
+             Description="PricingML React Web Client"
+             Display="expand"
+             Level="1">
+      <ComponentRef Id="ClienteFiles"/>
+      <ComponentRef Id="ClienteConfig"/>
+      <ComponentRef Id="ClienteShortcuts"/>
+      <ComponentRef Id="ClienteRegistry"/>
+    </Feature>
+
+    <!-- Components -->
+    <DirectoryRef Id="INSTALLFOLDER">
+      <!-- Cliente dist files -->
+      <Component Id="ClienteFiles" Guid="77777777-7777-7777-7777-777777777771">
+        <!-- Include all files from React dist build -->
+        <File Id="IndexHtml"
+              Name="index.html"
+              Source="..\PricingClient\pricing-ui\dist\index.html"
+              KeyPath="yes"/>
+        <!-- Copy entire dist directory structure -->
+        <RemoveFile Id="RemoveClienteFiles" Name="*.*" On="uninstall"/>
+      </Component>
+
+      <!-- Environment configuration -->
+      <Component Id="ClienteConfig" Guid="88888888-8888-8888-8888-888888888881">
+        <File Id="EnvFile"
+              Name=".env.local"
+              Source="..\PricingClient\pricing-ui\.env.local"
+              KeyPath="yes"/>
+      </Component>
+
+      <!-- Registry entries -->
+      <Component Id="ClienteRegistry" Guid="99999999-9999-9999-9999-999999999991">
+        <RegistryKey Root="HKLM" Key="SOFTWARE\PricingML\Cliente">
+          <RegistryValue Type="string" Name="InstallDir" Value="[INSTALLFOLDER]"/>
+          <RegistryValue Type="string" Name="Version" Value="$(var.ProductVersion)"/>
+          <RegistryValue Type="string" Name="ApiBaseUrl" Value="[APIURL]"/>
+        </RegistryKey>
+      </Component>
+    </DirectoryRef>
+
+    <!-- Start Menu Shortcuts -->
+    <DirectoryRef Id="PricingMLProgramMenu">
+      <Component Id="ClienteShortcuts" Guid="AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA">
+        <Shortcut Id="ClienteOpenShortcut"
+                  Name="Abrir Cliente"
+                  Target="http://localhost:3000"
+                  Description="Open PricingML Client"/>
+        <Shortcut Id="ClienteUninstallShortcut"
+                  Name="Desinstalar Cliente"
+                  Target="[System64Folder]msiexec.exe"
+                  Arguments="/x [ProductCode]"
+                  Description="Uninstall PricingML Cliente"/>
+        <RegistryValue Root="HKCU"
+                       Key="Software\Microsoft\Windows\CurrentVersion\Uninstall\PricingMLCliente"
+                       Name="Installed"
+                       Type="integer"
+                       Value="1"
+                       KeyPath="yes"/>
+      </Component>
+    </DirectoryRef>
+
+    <!-- Properties (UI variables) -->
+    <Property Id="APIURL" Value="http://localhost:5000"/>
+    <Property Id="CLIENTPORT" Value="3000"/>
+
+    <!-- InstallUISequence (User prompts) -->
+    <InstallUISequence>
+      <Show Dialog="WelcomeDialog" After="LoadDefaults"/>
+      <Show Dialog="ConfigurationDialog" After="WelcomeDialog"/>
+      <Show Dialog="ProgressDialog" After="ConfigurationDialog"/>
+      <Show Dialog="ExitDialog" OnExit="success"/>
+    </InstallUISequence>
+
+    <!-- Dialogs -->
+    <UI>
+      <!-- Welcome Dialog -->
+      <Dialog Id="WelcomeDialog" Width="370" Height="270" Title="[ProductName] Setup">
+        <Control Id="Title" Type="Text" X="20" Y="20" Width="330" Height="20" Text="Welcome to [ProductName]"/>
+        <Control Id="Description" Type="Text" X="20" Y="50" Width="330" Height="80" Text="This wizard will guide you through the installation of [ProductName].&#10;&#10;Requirements:&#10;- Node.js 18 or higher"/>
+        <Control Id="NextButton" Type="PushButton" X="236" Y="243" Width="56" Height="17" Text="Next"/>
+        <Control Id="CancelButton" Type="PushButton" X="304" Y="243" Width="56" Height="17" Text="Cancel"/>
+      </Dialog>
+
+      <!-- Configuration Dialog -->
+      <Dialog Id="ConfigurationDialog" Width="370" Height="280" Title="Configuration">
+        <Control Id="Title" Type="Text" X="20" Y="20" Width="330" Height="20" Text="Cliente Configuration"/>
+
+        <Control Id="InstallPathLabel" Type="Text" X="20" Y="50" Width="100" Height="12" Text="Installation Path:"/>
+        <Control Id="InstallPathEdit" Type="PathEdit" X="20" Y="65" Width="330" Height="18" Property="INSTALLFOLDER"/>
+
+        <Control Id="ApiUrlLabel" Type="Text" X="20" Y="90" Width="330" Height="12" Text="Motor API URL (e.g., http://localhost:5000):"/>
+        <Control Id="ApiUrlEdit" Type="Edit" X="20" Y="105" Width="330" Height="18" Property="APIURL"/>
+
+        <Control Id="HelpText" Type="Text" X="20" Y="130" Width="330" Height="60" Text="The Cliente connects to the Motor API at the specified URL.&#10;&#10;Examples:&#10;- Local: http://localhost:5000&#10;- Remote IP: http://192.168.1.100:5000&#10;- Domain: http://api.yourdomain.com"/>
+
+        <Control Id="BackButton" Type="PushButton" X="170" Y="255" Width="56" Height="17" Text="Back"/>
+        <Control Id="NextButton" Type="PushButton" X="236" Y="255" Width="56" Height="17" Text="Next"/>
+        <Control Id="CancelButton" Type="PushButton" X="304" Y="255" Width="56" Height="17" Text="Cancel"/>
+      </Dialog>
+
+      <!-- Progress Dialog -->
+      <Dialog Id="ProgressDialog" Width="370" Height="270" Title="Installing [ProductName]">
+        <Control Id="Title" Type="Text" X="20" Y="20" Width="330" Height="20" Text="Installing [ProductName]"/>
+        <Control Id="ProgressBar" Type="ProgressBar" X="20" Y="100" Width="330" Height="10"/>
+        <Control Id="StatusText" Type="Text" X="20" Y="120" Width="330" Height="40" Text="Please wait while [ProductName] is being installed..."/>
+      </Dialog>
+
+      <!-- Exit Dialog -->
+      <Dialog Id="ExitDialog" Width="370" Height="300" Title="Completed">
+        <Control Id="Title" Type="Text" X="20" Y="20" Width="330" Height="20" Text="[ProductName] Installation Complete"/>
+        <Control Id="Message" Type="Text" X="20" Y="50" Width="330" Height="120" Text="[ProductName] has been successfully installed.&#10;&#10;To start the Cliente:&#10;1. Make sure Node.js 18+ is installed&#10;2. Verify Motor API is running at: [APIURL]&#10;3. Open your browser and go to: http://localhost:3000&#10;&#10;Start Menu shortcuts have been created for quick access.&#10;&#10;Ensure the Motor service is running before accessing the Client."/>
+        <Control Id="FinishButton" Type="PushButton" X="304" Y="273" Width="56" Height="17" Text="Finish"/>
+      </Dialog>
+    </UI>
+
+  </Product>
+</Wix>
