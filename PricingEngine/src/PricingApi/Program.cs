@@ -1162,3 +1162,7 @@ foreach (var resource in AdminReportsService.Definitions.Keys)
 
 app.Run();
 
+// El punto de entrada devuelve int porque el arranque puede abortar (ver ArranqueMotor),
+// y en ese caso todas las rutas necesitan un valor de salida explicito.
+return 0;
+
