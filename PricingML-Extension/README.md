@@ -20,6 +20,7 @@ No hay paso de build: los PNG del icono están versionados.
 | `src/popup.js` | Lee la pestaña, carga tus publicaciones, postea al Motor |
 | `src/background.js` | Service worker: deja la URL por defecto al instalar |
 | `generar-iconos.py` | Rehace `icons/icon-{16,48,128}.png`. Solo si se cambia el diseño |
+| `tests/` | Pruebas con Playwright: lectura de la página de ML y flujo completo del popup |
 
 ## Decisiones de diseño
 
@@ -44,6 +45,13 @@ relee el token y se reintenta una vez, así que el vencimiento es transparente. 
 usuario que copiara un token de la consola, o usuario y contraseña una vez por día, eran las
 alternativas descartadas. El token va en `chrome.storage.local` —no `sync`, que lo replicaría a
 la cuenta de Google— y viaja solo al Motor en el header `Authorization`. Nunca se manda a ML.
+
+**El precio se lee del dato estructurado primero.** `extraerDatosDelArticulo` intenta el
+JSON-LD y el `meta[itemprop=price]` antes de mirar la pantalla, y al mirarla saltea el precio
+tachado (`s`, `.andes-money-amount--previous`) y el de las cuotas (`.ui-pdp-price__subtitles`).
+La primera versión hacía `querySelector('[data-testid="price"], .price-tag, .andes-money-amount__fraction')`,
+que devuelve el primero en el DOM y no el de mayor prioridad: en una publicación con descuento
+capturaba el precio **anterior**, más caro, y ese número entraba al cálculo del precio de venta.
 
 **Los iconos se dibujan, no se rasterizan.** `generar-iconos.py` reproduce el diseño de
 `icon.svg` con `zlib` y `struct` de la stdlib, y los PNG quedan commiteados. Depender de

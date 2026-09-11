@@ -15,15 +15,63 @@ function extraerDatosDelArticulo() {
     const enUrl = window.location.href.match(/articulo\.mercadolibre\.com[^/]*\/([A-Z]{3})-?(\d+)/);
     if (!enUrl) return null;
 
-    const textoPrecio = document.querySelector('[data-testid="price"], .price-tag, .andes-money-amount__fraction')
-        ?.textContent ?? '';
-    const soloNumero = textoPrecio.match(/[\d.,]+/);
+    // ML parte el precio en dos elementos (fracción y centavos), escribe los miles con punto
+    // y los centavos con coma.
+    const valorDe = (elemento) => {
+        const fraccion = elemento.querySelector('.andes-money-amount__fraction')?.textContent
+            ?? elemento.textContent ?? '';
+        const centavos = elemento.querySelector('.andes-money-amount__cents')?.textContent ?? '';
+        const entero = (fraccion.match(/[\d.,]+/)?.[0] ?? '').replace(/\./g, '').replace(/,.*$/, '');
+        if (!entero) return null;
+        const decimales = centavos.match(/\d+/)?.[0] ?? fraccion.match(/[.,](\d{1,2})\s*$/)?.[1] ?? '';
+        const numero = Number.parseFloat(decimales ? `${entero}.${decimales}` : entero);
+        return Number.isFinite(numero) && numero > 0 ? numero : null;
+    };
+
+    // Primero el dato estructurado que ML deja para Google: es el precio vigente, sin ambigüedad.
+    const precioDeclarado = () => {
+        for (const bloque of document.querySelectorAll('script[type="application/ld+json"]')) {
+            try {
+                const pendientes = [JSON.parse(bloque.textContent)];
+                while (pendientes.length) {
+                    const nodo = pendientes.shift();
+                    if (!nodo || typeof nodo !== 'object') continue;
+                    if (Array.isArray(nodo)) { pendientes.push(...nodo); continue; }
+                    const declarado = Number.parseFloat(nodo.price);
+                    if (Number.isFinite(declarado) && declarado > 0) return declarado;
+                    pendientes.push(...Object.values(nodo));
+                }
+            } catch {
+                // JSON-LD roto: se sigue con el próximo bloque.
+            }
+        }
+        const meta = document.querySelector('meta[itemprop="price"], meta[property="product:price:amount"]');
+        const declarado = Number.parseFloat(meta?.content);
+        return Number.isFinite(declarado) && declarado > 0 ? declarado : null;
+    };
+
+    // Si no hay dato estructurado, se lee de la pantalla. El orden importa: primero el precio
+    // vigente del detalle, después cualquier otro importe. Y se saltean dos que arruinarían la
+    // captura en silencio: el precio tachado (el de antes del descuento) y el de las cuotas.
+    const precioEnPantalla = () => {
+        const candidatos = [
+            ...document.querySelectorAll('.ui-pdp-price__second-line .andes-money-amount'),
+            ...document.querySelectorAll('[data-testid="price-part"], [data-testid="price"]'),
+            ...document.querySelectorAll('.andes-money-amount, .andes-money-amount__fraction, .price-tag')
+        ];
+        for (const candidato of candidatos) {
+            if (candidato.closest('s, del, .andes-money-amount--previous')) continue;
+            if (candidato.closest('.ui-pdp-price__subtitles, #pricing_price_subtitle')) continue;
+            const valor = valorDe(candidato);
+            if (valor !== null) return valor;
+        }
+        return null;
+    };
 
     return {
         meliItemId: `${enUrl[1]}${enUrl[2]}`,
         titulo: document.querySelector('h1, [data-testid="title"]')?.textContent?.trim() ?? '',
-        // ML usa punto para los miles y coma para los decimales.
-        precio: soloNumero ? Number.parseFloat(soloNumero[0].replace(/\./g, '').replace(',', '.')) : null
+        precio: precioDeclarado() ?? precioEnPantalla()
     };
 }
 

@@ -29,10 +29,14 @@ Conviene ser claro para no esperar algo que no pasa:
 
 No hay nada que compilar ni generar: la carpeta ya viene lista.
 
-1. Ir a `chrome://extensions/`
-2. Activar **"Modo de desarrollador"** (arriba a la derecha)
+1. Ir a `chrome://extensions/` (en Edge, `edge://extensions/`)
+2. Activar **"Modo de desarrollador"** (arriba a la derecha). Si queda apagado, Chrome esconde
+   las extensiones sin empaquetar y ni siquiera muestra el botón del paso siguiente.
 3. **"Cargar extensión sin empaquetar"**
-4. Elegir la carpeta `PricingML-Extension/`
+4. Elegir la carpeta **que tiene `manifest.json` adentro**: `...\PricingML\PricingML-Extension`.
+   No la raíz del repo ni `src\`.
+5. Chrome **no** muestra sola la extensión en la barra: clic en el **🧩** al lado de la barra de
+   direcciones y después en el **alfiler** de PricingML, para dejarla a mano.
 
 ### 2. Sesión: no hay nada que configurar
 
@@ -64,7 +68,8 @@ Lo único configurable es la **URL del Motor** (por defecto `http://localhost:50
 
 1. Abrí en MercadoLibre la publicación del competidor.
 2. Clic en el icono de la extensión.
-3. El popup se completa solo: **ID**, **título** y **precio** leídos de la página.
+3. El popup se completa solo: **ID**, **título** y **precio** leídos de la página. Si la
+   publicación está con descuento, toma el precio **vigente**, no el tachado.
 4. Elegí **tu publicación** en el desplegable — a cuál de tus productos le compite.
 5. Revisá el precio y clic en **"Guardar a PricingML"**.
 
@@ -112,6 +117,7 @@ PricingML-Extension/
 │   ├── icon.svg           # Diseño de referencia
 │   └── icon-{16,48,128}.png
 ├── generar-iconos.py      # Solo si se cambia el diseño del icono
+├── tests/                 # Pruebas automáticas (ver tests/README.md)
 └── README.md
 ```
 
@@ -159,6 +165,9 @@ navegador y cargar a mano son la misma operación, así que hay un solo camino e
 | "No tenés publicaciones activas" | No hay publicaciones en la base | Sincronizar publicaciones desde la app primero |
 | "Esa publicación no tiene Moneda Principal" | Falta configurarla | Cargar la Moneda Principal de la empresa |
 | El popup no completa los datos | No es una página de artículo | Abrir una URL `articulo.mercadolibre.com...` |
+| La extensión no aparece en `chrome://extensions/` | Modo de desarrollador apagado, o se eligió otra carpeta | Prender el toggle y elegir la carpeta que tiene `manifest.json` adentro |
+| Está en la lista pero no hay icono en la barra | Chrome no fija sola una extensión nueva | Clic en el 🧩 de la barra → alfiler al lado de PricingML |
+| El precio que completa no es el que veo | El PDP de ML cambió de markup | Corregirlo a mano y avisar: hay que actualizar `extraerDatosDelArticulo` |
 
 ---
 
