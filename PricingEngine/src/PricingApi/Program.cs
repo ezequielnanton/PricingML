@@ -23,13 +23,18 @@ var devFrontendOrigin = new Regex(
 var devTunnelFrontendOrigin = new Regex(
     @"^https://.+-5173\..+\.devtunnels\.ms$",
     RegexOptions.Compiled);
+// #extensionCompetidores: el popup de la extensión de Chrome postea competidores capturados.
+// Su ID cambia en cada máquina cuando se carga sin empaquetar, así que no se puede fijar uno.
+// No afloja nada: una extensión con host_permissions sobre el Motor ya se saltea CORS por
+// diseño de Chrome, y los endpoints que usa exigen igual un token de sesión con rol ADMIN.
+var extensionOrigin = new Regex(@"^chrome-extension://[a-p]{32}$", RegexOptions.Compiled);
 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
         policy
-            .SetIsOriginAllowed(origin => devFrontendOrigin.IsMatch(origin) || devTunnelFrontendOrigin.IsMatch(origin))
+            .SetIsOriginAllowed(origin => devFrontendOrigin.IsMatch(origin) || devTunnelFrontendOrigin.IsMatch(origin) || extensionOrigin.IsMatch(origin))
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
@@ -596,6 +601,14 @@ app.MapPost("/api/marketplace/ml/cola-aprobacion/{colaId:long}/rechazar", async 
     return ok ? Results.NoContent() : Results.NotFound();
 });
 
+// Para el desplegable de la extensión de Chrome: el usuario elige explícitamente a qué
+// publicación propia corresponde el competidor que está viendo en ML.
+app.MapGet("/api/marketplace/ml/publicaciones", async (MercadoLibreSyncService mlService) =>
+{
+    var publicaciones = await mlService.GetPublicacionesParaVincularAsync();
+    return Results.Ok(publicaciones);
+});
+
 // #competidoresManualesMl: vincular/desvincular/actualizar precio de competidores para
 // publicaciones que no son de catálogo. Ningún vínculo se crea sin confirmación explícita.
 // MercadoLibre bloquea tanto la búsqueda por texto (GET /sites/{site}/search) como leer
@@ -615,13 +628,20 @@ app.MapGet("/api/marketplace/ml/publicaciones/{publicacionId:int}/moneda-princip
     return Results.Ok(new MlMonedaPrincipal { MonedaID = monedaId });
 });
 
+// La extensión de Chrome usa este mismo POST: capturar un competidor desde el navegador y
+// cargarlo a mano desde el panel son la misma operación, y recapturarlo es la única forma
+// de refrescarle el precio. Por eso devuelve EsNuevo/PrecioAnterior, para que el popup pueda
+// decir si dio de alta o actualizó; el panel ignora esos campos.
 app.MapPost("/api/marketplace/ml/publicaciones/{publicacionId:int}/competidores", async (int publicacionId, MlVincularCompetidorRequest dto, HttpContext ctx, MercadoLibreSyncService mlService) =>
 {
     try
     {
         var usuario = (UsuarioSession)ctx.Items["Usuario"]!;
-        var id = await mlService.VincularCompetidorAsync(publicacionId, dto, usuario.UsuarioID);
-        return Results.Created($"/api/marketplace/ml/publicaciones/{publicacionId}/competidores/{id}", new { VinculoID = id });
+        var (vinculoId, esNuevo, precioAnterior) = await mlService.VincularCompetidorAsync(publicacionId, dto, usuario.UsuarioID);
+        var payload = new { VinculoID = vinculoId, EsNuevo = esNuevo, PrecioAnterior = precioAnterior };
+        return esNuevo
+            ? Results.Created($"/api/marketplace/ml/publicaciones/{publicacionId}/competidores/{vinculoId}", payload)
+            : Results.Ok(payload);
     }
     catch (ArgumentException ex)
     {

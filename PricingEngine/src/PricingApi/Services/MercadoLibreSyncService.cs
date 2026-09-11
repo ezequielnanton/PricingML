@@ -929,6 +929,38 @@ public class MercadoLibreSyncService
         return list;
     }
 
+    // La extensión de Chrome necesita que el usuario elija a qué publicación propia
+    // corresponde el competidor que está viendo en ML: adivinarlo por parecido de título
+    // vincularía en silencio al producto equivocado, y ese precio entra derecho al cálculo.
+    // Trae la moneda sugerida acá para que el popup no tenga que pedirla por separado.
+    public async Task<List<MlPublicacionParaVincular>> GetPublicacionesParaVincularAsync()
+    {
+        var list = new List<MlPublicacionParaVincular>();
+        await using var conn = new SqlConnection(_connectionString);
+        await conn.OpenAsync();
+        await using var cmd = conn.CreateCommand();
+        cmd.CommandText = @"SELECT pub.PublicacionID, pub.MeliItemID, pub.PrecioActual, p.Titulo, p.SKU, pg.MonedaPrincipalID
+                             FROM PublicacionesML pub
+                             JOIN Productos p ON p.ProductoID = pub.ProductoID
+                             LEFT JOIN ParametrosGenerales pg ON pg.EmpresaID = p.EmpresaID
+                             WHERE pub.Estado <> 'closed'
+                             ORDER BY p.Titulo";
+        await using var reader = await cmd.ExecuteReaderAsync();
+        while (await reader.ReadAsync())
+        {
+            list.Add(new MlPublicacionParaVincular
+            {
+                PublicacionID = Convert.ToInt32(reader["PublicacionID"]),
+                MeliItemID = reader["MeliItemID"].ToString() ?? string.Empty,
+                Titulo = reader["Titulo"].ToString() ?? string.Empty,
+                SKU = reader["SKU"].ToString() ?? string.Empty,
+                PrecioActual = Convert.ToDecimal(reader["PrecioActual"]),
+                MonedaPrincipalID = reader["MonedaPrincipalID"] is DBNull ? null : Convert.ToInt32(reader["MonedaPrincipalID"])
+            });
+        }
+        return list;
+    }
+
     // La Moneda Principal de la Empresa dueña de la publicación (vía Producto) se sugiere
     // como valor por defecto al vincular un competidor nuevo -- el usuario puede elegir otra.
     public async Task<int?> ObtenerMonedaPrincipalAsync(int publicacionId)
@@ -946,7 +978,12 @@ public class MercadoLibreSyncService
         return result is null or DBNull ? null : Convert.ToInt32(result);
     }
 
-    public async Task<int> VincularCompetidorAsync(int publicacionId, MlVincularCompetidorRequest dto, int usuarioId)
+    // Alta o actualización: hay un UNIQUE sobre (PublicacionID, CompetidorItemID), así que
+    // reenviar un competidor ya vinculado tiene que refrescarle el precio en vez de fallar.
+    // Es el único camino que tiene la extensión de Chrome para actualizar un precio, porque
+    // traerlo sola es imposible (ver el comentario sobre el 403 de ML más arriba). El UNIQUE
+    // no distingue Activo, así que un vínculo dado de baja se reactiva en vez de chocar.
+    public async Task<(int VinculoID, bool EsNuevo, decimal? PrecioAnterior)> VincularCompetidorAsync(int publicacionId, MlVincularCompetidorRequest dto, int usuarioId)
     {
         if (string.IsNullOrWhiteSpace(dto.CompetidorItemID))
             throw new ArgumentException("Ingresá un ID o un link de MercadoLibre.");
@@ -958,9 +995,12 @@ public class MercadoLibreSyncService
         var cuentaYSite = await ObtenerCuentaYSiteAsync(conn, publicacionId);
         var itemId = ExtraerItemId(dto.CompetidorItemID, cuentaYSite.SiteId);
 
+        var existente = await BuscarVinculoAsync(conn, publicacionId, itemId);
+
         int vinculoId;
-        await using (var cmd = conn.CreateCommand())
+        if (existente is null)
         {
+            await using var cmd = conn.CreateCommand();
             cmd.CommandText = @"INSERT INTO PublicacionCompetidoresManual (PublicacionID, CompetidorItemID, CompetidorTitulo, UsuarioVinculoID, MonedaID, UltimoPrecio, FechaUltimoPrecio)
                                  VALUES (@publicacionId, @competidorItemId, @competidorTitulo, @usuarioId, @monedaId, @precio, SYSDATETIME());
                                  SELECT SCOPE_IDENTITY();";
@@ -972,9 +1012,39 @@ public class MercadoLibreSyncService
             cmd.Parameters.Add("@precio", SqlDbType.Decimal).Value = dto.Precio;
             vinculoId = Convert.ToInt32(await cmd.ExecuteScalarAsync());
         }
+        else
+        {
+            vinculoId = existente.Value.VinculoID;
+            await using var cmd = conn.CreateCommand();
+            cmd.CommandText = @"UPDATE PublicacionCompetidoresManual
+                                 SET UltimoPrecio = @precio, FechaUltimoPrecio = SYSDATETIME(), MonedaID = @monedaId,
+                                     CompetidorTitulo = COALESCE(@competidorTitulo, CompetidorTitulo),
+                                     UsuarioVinculoID = @usuarioId, Activo = 1
+                                 WHERE VinculoID = @id";
+            cmd.Parameters.Add("@precio", SqlDbType.Decimal).Value = dto.Precio;
+            cmd.Parameters.Add("@monedaId", SqlDbType.Int).Value = dto.MonedaID;
+            cmd.Parameters.Add("@competidorTitulo", SqlDbType.VarChar, 255).Value = (object?)dto.CompetidorTitulo ?? DBNull.Value;
+            cmd.Parameters.Add("@usuarioId", SqlDbType.Int).Value = usuarioId;
+            cmd.Parameters.Add("@id", SqlDbType.Int).Value = vinculoId;
+            await cmd.ExecuteNonQueryAsync();
+        }
 
         await InsertarCompetenciaSnapshotManualAsync(conn, publicacionId, itemId, dto.Precio);
-        return vinculoId;
+        return (vinculoId, existente is null, existente?.UltimoPrecio);
+    }
+
+    private static async Task<(int VinculoID, decimal? UltimoPrecio)?> BuscarVinculoAsync(SqlConnection conn, int publicacionId, string itemId)
+    {
+        await using var cmd = conn.CreateCommand();
+        cmd.CommandText = "SELECT VinculoID, UltimoPrecio FROM PublicacionCompetidoresManual WHERE PublicacionID = @publicacionId AND CompetidorItemID = @competidorItemId";
+        cmd.Parameters.Add("@publicacionId", SqlDbType.Int).Value = publicacionId;
+        cmd.Parameters.Add("@competidorItemId", SqlDbType.VarChar, 50).Value = itemId;
+        await using var reader = await cmd.ExecuteReaderAsync();
+        if (!await reader.ReadAsync())
+            return null;
+        return (
+            Convert.ToInt32(reader["VinculoID"]),
+            reader["UltimoPrecio"] is DBNull ? null : Convert.ToDecimal(reader["UltimoPrecio"]));
     }
 
     public async Task DesvincularCompetidorAsync(int vinculoId)

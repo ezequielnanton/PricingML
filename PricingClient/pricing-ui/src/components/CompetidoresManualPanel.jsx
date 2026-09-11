@@ -120,7 +120,9 @@ function CompetidoresManualPanel({ publicacionId }) {
         notify('error', data.message || 'No se pudo vincular.')
         return
       }
-      notify('success', `${nuevaFila.titulo.trim()} vinculado como competidor.`)
+      notify('success', data.esNuevo === false
+        ? `${nuevaFila.titulo.trim()} ya estaba vinculado: se actualizó su precio.`
+        : `${nuevaFila.titulo.trim()} vinculado como competidor.`)
       setNuevaFila((prev) => ({ ...FILA_VACIA, monedaId: prev.monedaId }))
       await cargarVinculados()
     } catch {
