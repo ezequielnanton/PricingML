@@ -51,6 +51,7 @@ builder.Services.AddSingleton<ErpSyncService>();
 builder.Services.AddSingleton<MercadoLibreSyncService>();
 builder.Services.AddSingleton<EjecucionAutomaticaService>();
 builder.Services.AddSingleton<ResumenVentasService>();
+builder.Services.AddSingleton<CompetidorCapturaService>();
 builder.Services.AddHostedService<EjecucionAutomaticaHostedService>();
 
 // #escucharEnRed: sin esto, Kestrel solo escucha en localhost y un celular en la misma
@@ -1140,6 +1141,14 @@ app.MapPost("/api/admin/colaejecucion", async (ColaEjecucionMlDto dto, AdminCrud
     var id = await svc.CreateColaEjecucionMlAsync(dto);
     return Results.Created($"/api/admin/cola-ejecucion-ml/{id}", new { ColaID = id });
 });
+
+app.MapPost("/api/competidores/capturado", async (CompetidorCapturadoRequest request, CompetidorCapturaService svc) =>
+{
+    var resultado = await svc.CapturarCompetidorAsync(request);
+    return resultado.Vinculado ? Results.Ok(resultado) : Results.BadRequest(resultado);
+})
+.WithName("CaptureCompetitor")
+.WithSummary("Captura un competidor desde la extensión de navegador y lo vincula automáticamente");
 
 // Guía: docs/Guia-Tecnica-Continuar-API.md#crearGet y sección 7 (reportes seguros).
 // Uniform, read-only reports. Resource names and columns are explicitly whitelisted by AdminReportsService.

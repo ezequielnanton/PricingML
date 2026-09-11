@@ -1,0 +1,30 @@
+{
+  "manifest_version": 3,
+  "name": "PricingML Competitor Capture",
+  "version": "1.0.0",
+  "description": "Captura competidores de MercadoLibre y sincroniza precios automáticamente en PricingML",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://articulo.mercadolibre.com.ar/*",
+    "https://articulo.mercadolibre.com/*",
+    "https://articulo.mercadolibre.com.mx/*",
+    "https://articulo.mercadolibre.com.br/*",
+    "https://articulo.mercadolibre.cl/*"
+  ],
+  "action": {
+    "default_popup": "src/popup.html",
+    "default_title": "PricingML - Capturar competidor"
+  },
+  "background": {
+    "service_worker": "src/background.js"
+  },
+  "icons": {
+    "16": "icons/icon-16.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  }
+}
