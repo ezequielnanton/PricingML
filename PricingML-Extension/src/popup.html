@@ -195,20 +195,15 @@
 
         <div class="config-panel" id="configPanel" hidden>
             <p>
-                El token sale de tu sesión en PricingML: entrá a la app web, abrí la consola
-                del navegador (F12) y copiá el token de sesión guardado. Se guarda solo en este
-                navegador y nunca sale hacia MercadoLibre.
+                La sesión se toma sola de PricingML abierto en otra pestaña, así que no hay
+                ningún token para copiar. Lo único configurable es dónde corre el Motor.
             </p>
             <div class="form-group">
                 <label for="apiUrl">URL del Motor</label>
                 <input type="text" id="apiUrl" placeholder="http://localhost:5000">
             </div>
-            <div class="form-group">
-                <label for="authToken">Token de sesión</label>
-                <input type="password" id="authToken" placeholder="Pegá tu token acá">
-            </div>
             <div class="button-group">
-                <button type="button" class="btn-primary" id="btnGuardarConfig">Guardar configuración</button>
+                <button type="button" class="btn-primary" id="btnGuardarConfig">Guardar</button>
             </div>
         </div>
 
@@ -245,6 +240,10 @@
         </form>
 
         <div id="status" class="status"></div>
+
+        <div class="button-group" id="accionAbrirApp" hidden>
+            <button type="button" class="btn-secondary" id="btnAbrirApp">Abrir PricingML para iniciar sesión</button>
+        </div>
     </div>
 
     <script src="popup.js"></script>

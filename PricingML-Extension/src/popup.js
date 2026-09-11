@@ -1,5 +1,14 @@
 const API_URL_DEFAULT = 'http://localhost:5000';
 
+// Clave donde el cliente web guarda el token de sesión (PricingClient/.../utils/auth.js).
+// Si allá se renombra, acá deja de encontrarse la sesión.
+const CLAVE_TOKEN_APP = 'pricingUiToken';
+
+// Dónde puede estar servido PricingML: el cliente puede correr en el puerto de Vite o servido
+// por el Motor mismo desde wwwroot, así que se prueban todas las pestañas locales abiertas en
+// vez de pedirle al usuario que configure cuál es.
+const ORIGEN_APP = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?\//;
+
 // Corre dentro de la pestaña de MercadoLibre vía chrome.scripting, así que tiene que ser
 // autocontenida: no puede referenciar nada de este archivo.
 function extraerDatosDelArticulo() {
@@ -26,32 +35,36 @@ document.addEventListener('DOMContentLoaded', async () => {
     const selectPublicacion = document.getElementById('publicacion');
     const publicacionHint = document.getElementById('publicacionHint');
     const inputApiUrl = document.getElementById('apiUrl');
-    const inputToken = document.getElementById('authToken');
+    const accionAbrirApp = document.getElementById('accionAbrirApp');
 
-    let config = await leerConfig();
+    const guardado = await chrome.storage.local.get(['apiUrl', 'authToken']);
+    let apiUrl = normalizarUrl(guardado.apiUrl || API_URL_DEFAULT);
+    let token = guardado.authToken || '';
     let publicaciones = [];
 
-    inputApiUrl.value = config.apiUrl;
-    inputToken.value = config.authToken;
+    inputApiUrl.value = apiUrl;
 
     document.getElementById('btnConfig').addEventListener('click', () => {
         configPanel.hidden = !configPanel.hidden;
     });
 
     document.getElementById('btnGuardarConfig').addEventListener('click', async () => {
-        config = {
-            apiUrl: (inputApiUrl.value.trim() || API_URL_DEFAULT).replace(/\/+$/, ''),
-            authToken: inputToken.value.trim()
-        };
-        await chrome.storage.local.set(config);
+        apiUrl = normalizarUrl(inputApiUrl.value.trim() || API_URL_DEFAULT);
+        inputApiUrl.value = apiUrl;
+        await chrome.storage.local.set({ apiUrl });
         configPanel.hidden = true;
         await cargarPublicaciones();
     });
 
-    await precargarDatosDetectados();
-    await cargarPublicaciones();
+    document.getElementById('btnAbrirApp').addEventListener('click', () => {
+        chrome.tabs.create({ url: apiUrl });
+    });
 
     selectPublicacion.addEventListener('change', mostrarHintPublicacion);
+
+    await precargarDatosDetectados();
+    if (!token) await tomarTokenDeLaApp();
+    await cargarPublicaciones();
 
     form.addEventListener('submit', async (event) => {
         event.preventDefault();
@@ -102,6 +115,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             if (!respuesta.ok) {
                 mostrarEstado(mensajeDeError(respuesta.status, datos), 'error');
+                accionAbrirApp.hidden = respuesta.status !== 401;
                 return;
             }
 
@@ -121,22 +135,54 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    async function leerConfig() {
-        const guardado = await chrome.storage.local.get(['apiUrl', 'authToken']);
-        return {
-            apiUrl: (guardado.apiUrl || API_URL_DEFAULT).replace(/\/+$/, ''),
-            authToken: guardado.authToken || ''
-        };
+    function normalizarUrl(url) {
+        return url.replace(/\/+$/, '');
     }
 
-    function pedir(ruta, opciones = {}) {
-        return fetch(`${config.apiUrl}${ruta}`, {
+    // Las sesiones duran 12 horas, así que el token se vence solo. En vez de pedirle al usuario
+    // que lo copie de nuevo, se relee de PricingML abierto y se reintenta una vez: mientras haya
+    // sesión viva en el navegador, la extensión la sigue sin que el usuario haga nada.
+    async function pedir(ruta, opciones = {}) {
+        let respuesta = await pedirConTokenActual(ruta, opciones);
+        if (respuesta.status === 401 && await tomarTokenDeLaApp()) {
+            respuesta = await pedirConTokenActual(ruta, opciones);
+        }
+        return respuesta;
+    }
+
+    function pedirConTokenActual(ruta, opciones) {
+        return fetch(`${apiUrl}${ruta}`, {
             ...opciones,
             headers: {
                 'Content-Type': 'application/json',
-                Authorization: `Bearer ${config.authToken}`
+                Authorization: `Bearer ${token}`
             }
         });
+    }
+
+    // Toma el token del localStorage de PricingML mirando las pestañas locales abiertas. No se
+    // puede leer el localStorage de un origen sin un documento de ese origen, así que esto
+    // depende de que el usuario tenga la app abierta -- que es el caso normal mientras trabaja.
+    async function tomarTokenDeLaApp() {
+        const pestañas = await chrome.tabs.query({});
+        for (const pestaña of pestañas) {
+            if (!pestaña.id || !pestaña.url || !ORIGEN_APP.test(pestaña.url)) continue;
+            try {
+                const [resultado] = await chrome.scripting.executeScript({
+                    target: { tabId: pestaña.id },
+                    args: [CLAVE_TOKEN_APP],
+                    func: (clave) => localStorage.getItem(clave)
+                });
+                if (resultado?.result) {
+                    token = resultado.result;
+                    await chrome.storage.local.set({ authToken: token });
+                    return true;
+                }
+            } catch {
+                // Pestaña donde no se puede inyectar: se sigue con la próxima.
+            }
+        }
+        return false;
     }
 
     // Se lee la pestaña en el momento de abrir el popup, en vez de que un content script deje
@@ -172,11 +218,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     async function cargarPublicaciones() {
         selectPublicacion.replaceChildren(opcion('', 'Cargando...'));
         publicacionHint.textContent = '';
+        accionAbrirApp.hidden = true;
 
-        if (!config.authToken) {
-            selectPublicacion.replaceChildren(opcion('', 'Sin token configurado'));
-            mostrarEstado('Configurá la URL del Motor y tu token de sesión para empezar.', 'error');
-            configPanel.hidden = false;
+        if (!token) {
+            selectPublicacion.replaceChildren(opcion('', 'Sin sesión'));
+            mostrarEstado('No encontré una sesión de PricingML abierta. Iniciá sesión en la app y volvé a abrir esto.', 'error');
+            accionAbrirApp.hidden = false;
             return;
         }
 
@@ -186,7 +233,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const datos = await respuesta.json().catch(() => ({}));
                 selectPublicacion.replaceChildren(opcion('', 'No se pudieron cargar'));
                 mostrarEstado(mensajeDeError(respuesta.status, datos), 'error');
-                if (respuesta.status === 401) configPanel.hidden = false;
+                accionAbrirApp.hidden = respuesta.status !== 401;
                 return;
             }
 
@@ -224,14 +271,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function mensajeDeError(status, datos) {
-        if (status === 401) return 'Token inválido o vencido. Volvé a copiarlo desde PricingML en Configuración.';
-        if (status === 403) return 'Tu usuario es de solo lectura: necesitás un usuario ADMIN para guardar competidores.';
+        if (status === 401) return 'Tu sesión de PricingML venció. Iniciá sesión de nuevo en la app y reintentá.';
+        if (status === 403) return 'Tu usuario es de solo lectura: necesitás uno con rol ADMIN para guardar competidores.';
         return datos?.message || `El Motor respondió con un error (${status}).`;
     }
 
     function mensajeDeFalloDeRed(error) {
         return error instanceof TypeError
-            ? `No se pudo conectar con el Motor en ${config.apiUrl}. Verificá que esté corriendo.`
+            ? `No se pudo conectar con el Motor en ${apiUrl}. Verificá que esté corriendo.`
             : error.message;
     }
 

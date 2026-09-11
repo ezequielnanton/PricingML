@@ -15,7 +15,9 @@
     "https://articulo.mercadolibre.com.br/*",
     "https://articulo.mercadolibre.cl/*",
     "http://localhost/*",
-    "http://127.0.0.1/*"
+    "http://127.0.0.1/*",
+    "https://localhost/*",
+    "https://127.0.0.1/*"
   ],
   "action": {
     "default_popup": "src/popup.html",

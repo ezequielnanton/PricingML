@@ -39,24 +39,29 @@ bash GENERATE_ICONS.sh      # requiere ImageMagick
 3. **"Cargar extensión sin empaquetar"**
 4. Elegir la carpeta `PricingML-Extension/`
 
-### 3. Configurar el Motor y el token
+### 3. Sesión: no hay nada que configurar
 
 El endpoint que usa la extensión está detrás del login y exige rol **ADMIN**, igual que
-cualquier otra escritura de la app. Así que la primera vez hay que configurarlo:
+cualquier otra escritura de la app. Pero **no tenés que copiar ningún token**: la extensión
+toma la sesión que ya tenés abierta en PricingML.
 
-1. Clic en el icono de la extensión → **"Configuración"**
-2. **URL del Motor**: `http://localhost:5000` (o donde corra)
-3. **Token de sesión**: el de tu sesión en PricingML. Entrá a la app web ya logueado, abrí la
-   consola (F12) y copiá el token guardado por el cliente.
-4. **"Guardar configuración"**
+El único requisito es tener **PricingML abierto en alguna pestaña y logueado**. La extensión
+busca entre las pestañas locales, lee el token de sesión del cliente web y lo reusa. Las
+sesiones duran 12 horas; cuando una vence, la extensión vuelve a leer la nueva sola, así que en
+la práctica nunca te pide nada.
 
-El token queda en `chrome.storage.local`, o sea en esta máquina y nada más — a propósito no se
+Si no encuentra sesión, el popup te avisa y te ofrece un botón para abrir PricingML.
+
+El token queda en `chrome.storage.local` — o sea en esta máquina y nada más, a propósito no se
 usa `sync`, que lo replicaría a tu cuenta de Google. Nunca se manda a MercadoLibre: únicamente
 viaja al Motor, en el header `Authorization`.
 
-> Si el Motor no corre en `localhost` ni `127.0.0.1`, hay que agregar ese host a
+Lo único configurable es la **URL del Motor** (por defecto `http://localhost:5000`), en
+**Configuración** dentro del popup.
+
+> Si el Motor corre en algo que no sea `localhost` ni `127.0.0.1`, hay que agregar ese host a
 > `host_permissions` en `manifest.json` y recargar la extensión. Chrome no deja que una
-> extensión postee a un host que no declaró.
+> extensión lea ni postee a un host que no declaró.
 
 ---
 
@@ -125,6 +130,7 @@ abrís. Así el dato nunca queda viejo si cambiás de artículo.
 ```
 Popup abierto
   └─ chrome.scripting lee la pestaña de ML → ID, título, precio
+  └─ chrome.scripting lee localStorage de la pestaña de PricingML → token de sesión
   └─ GET  /api/marketplace/ml/publicaciones          → puebla el desplegable
          ↓ (elegís publicación, clic en Guardar)
   └─ POST /api/marketplace/ml/publicaciones/{id}/competidores
@@ -148,9 +154,9 @@ navegador y cargar a mano son la misma operación, así que hay un solo camino e
 
 | Problema | Causa | Solución |
 |----------|-------|----------|
-| "Configurá la URL del Motor y tu token" | Falta el token | Configuración → pegar el token |
-| "Token inválido o vencido" (401) | La sesión expiró | Volver a copiar el token desde la app |
-| "Tu usuario es de solo lectura" (403) | El usuario no es ADMIN | Usar un token de un usuario ADMIN |
+| "No encontré una sesión de PricingML abierta" | La app no está abierta o no hay login | Abrir PricingML y loguearse |
+| "Tu sesión de PricingML venció" (401) | Pasaron las 12 horas | Volver a iniciar sesión en la app |
+| "Tu usuario es de solo lectura" (403) | El usuario no es ADMIN | Iniciar sesión con un usuario ADMIN |
 | "No se pudo conectar con el Motor" | Motor apagado, o host no declarado | Verificar `http://localhost:5000/swagger` y `host_permissions` |
 | "No tenés publicaciones activas" | No hay publicaciones en la base | Sincronizar publicaciones desde la app primero |
 | "Esa publicación no tiene Moneda Principal" | Falta configurarla | Cargar la Moneda Principal de la empresa |

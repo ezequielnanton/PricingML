@@ -8,7 +8,7 @@ PricingML. La guía de usuario completa está en [`../COMPETIDORES-EXTENSION.md`
 1. `bash GENERATE_ICONS.sh` (requiere ImageMagick)
 2. `chrome://extensions/` → **Modo de desarrollador** → **Cargar extensión sin empaquetar**
 3. Elegir esta carpeta
-4. Clic en el icono → **Configuración** → URL del Motor y token de sesión (ADMIN)
+4. Tener PricingML abierto y logueado con un usuario ADMIN: la sesión se toma de ahí
 
 ## Archivos
 
@@ -35,9 +35,13 @@ es el mismo que usa la app. Es idempotente: reenviar un competidor ya vinculado 
 precio en vez de fallar contra el UNIQUE `(PublicacionID, CompetidorItemID)`. Devuelve
 `esNuevo` y `precioAnterior` para que el popup diga si dio de alta o actualizó.
 
-**El token se pega a mano.** Va en `chrome.storage.local` —no `sync`, que lo replicaría a la
-cuenta de Google del usuario— y viaja solo al Motor en el header `Authorization`. Nunca se manda
-a MercadoLibre.
+**La sesión se reusa, no se pide.** El popup lee `localStorage['pricingUiToken']` de una pestaña
+local con PricingML abierto (ver `CLAVE_TOKEN_APP` y el comentario en
+`PricingClient/pricing-ui/src/utils/auth.js`). Las sesiones duran 12 horas: ante un 401 se
+relee el token y se reintenta una vez, así que el vencimiento es transparente. Pedirle al
+usuario que copiara un token de la consola, o usuario y contraseña una vez por día, eran las
+alternativas descartadas. El token va en `chrome.storage.local` —no `sync`, que lo replicaría a
+la cuenta de Google— y viaja solo al Motor en el header `Authorization`. Nunca se manda a ML.
 
 ## Limitaciones
 

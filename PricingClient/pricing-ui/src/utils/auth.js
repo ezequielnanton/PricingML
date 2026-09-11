@@ -1,6 +1,9 @@
 // #loginGeneralApp: sesión del Usuario logueado (AdminPanel, Cola ML, Integraciones,
 // Reportes, Pricing) guardada en localStorage. No confundir con el token de Repositor,
 // que vive aparte (RepositorApp) y protege una superficie de endpoints distinta.
+// #extensionCompetidores: la extensión de Chrome lee esta misma clave del localStorage para
+// reusar la sesión abierta acá en vez de pedir un token aparte (ver PricingML-Extension/src/
+// popup.js, CLAVE_TOKEN_APP). Si se renombra, hay que cambiarla también allá.
 const TOKEN_KEY = 'pricingUiToken'
 const USUARIO_KEY = 'pricingUiUsuario'
 export const SESSION_CHANGED_EVENT = 'pricing-ui-session-changed'
