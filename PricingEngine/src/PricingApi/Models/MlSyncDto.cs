@@ -95,6 +95,18 @@ public class MlActualizarPrecioCompetidorRequest
     public decimal Precio { get; set; }
 }
 
+// Lo que la extensión de Chrome muestra en su desplegable para que el usuario elija a qué
+// publicación propia corresponde el competidor capturado.
+public class MlPublicacionParaVincular
+{
+    public int PublicacionID { get; set; }
+    public string MeliItemID { get; set; } = string.Empty;
+    public string Titulo { get; set; } = string.Empty;
+    public string SKU { get; set; } = string.Empty;
+    public decimal PrecioActual { get; set; }
+    public int? MonedaPrincipalID { get; set; }
+}
+
 public class MlCompetidorVinculado
 {
     public int VinculoID { get; set; }

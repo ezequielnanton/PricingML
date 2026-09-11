@@ -25,6 +25,7 @@
         .header {
             display: flex;
             align-items: center;
+            justify-content: space-between;
             margin-bottom: 16px;
             padding-bottom: 12px;
             border-bottom: 1px solid #e0e0e0;
@@ -50,6 +51,7 @@
 
         input[type="text"],
         input[type="number"],
+        input[type="password"],
         select {
             width: 100%;
             padding: 8px 10px;
@@ -57,11 +59,11 @@
             border: 1px solid #dadada;
             border-radius: 4px;
             font-family: inherit;
+            background: white;
             transition: border-color 0.2s;
         }
 
-        input[type="text"]:focus,
-        input[type="number"]:focus,
+        input:focus,
         select:focus {
             outline: none;
             border-color: #0066cc;
@@ -92,7 +94,6 @@
 
         .btn-primary:hover:not(:disabled) {
             background: #0052a3;
-            box-shadow: 0 2px 8px rgba(0, 102, 204, 0.3);
         }
 
         .btn-primary:disabled {
@@ -110,12 +111,24 @@
             background: #efefef;
         }
 
+        .btn-link {
+            flex: 0 0 auto;
+            background: none;
+            border: none;
+            color: #0066cc;
+            font-size: 11px;
+            font-weight: 500;
+            padding: 2px 4px;
+            text-decoration: underline;
+        }
+
         .status {
             margin-top: 16px;
             padding: 12px;
             border-radius: 4px;
             font-size: 12px;
             display: none;
+            line-height: 1.5;
         }
 
         .status.show {
@@ -140,22 +153,6 @@
             border: 1px solid #bee5eb;
         }
 
-        .loading-spinner {
-            display: inline-block;
-            width: 12px;
-            height: 12px;
-            border: 2px solid #ccc;
-            border-top: 2px solid #0066cc;
-            border-radius: 50%;
-            animation: spin 0.6s linear infinite;
-            margin-right: 6px;
-            vertical-align: middle;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
         .info-section {
             background: #f9f9f9;
             padding: 10px;
@@ -164,68 +161,86 @@
             font-size: 11px;
             color: #666;
             border-left: 3px solid #0066cc;
+            line-height: 1.5;
         }
 
-        .error-icon {
-            color: #d9534f;
-            margin-right: 4px;
+        .config-panel {
+            background: #f9f9f9;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            padding: 12px;
+            margin-bottom: 12px;
         }
 
-        .success-icon {
-            color: #5cb85c;
-            margin-right: 4px;
+        .config-panel p {
+            font-size: 11px;
+            color: #666;
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+
+        .hint {
+            font-size: 11px;
+            color: #888;
+            margin-top: 4px;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>📊 PricingML</h1>
+            <h1>PricingML</h1>
+            <button type="button" class="btn-link" id="btnConfig">Configuración</button>
+        </div>
+
+        <div class="config-panel" id="configPanel" hidden>
+            <p>
+                El token sale de tu sesión en PricingML: entrá a la app web, abrí la consola
+                del navegador (F12) y copiá el token de sesión guardado. Se guarda solo en este
+                navegador y nunca sale hacia MercadoLibre.
+            </p>
+            <div class="form-group">
+                <label for="apiUrl">URL del Motor</label>
+                <input type="text" id="apiUrl" placeholder="http://localhost:5000">
+            </div>
+            <div class="form-group">
+                <label for="authToken">Token de sesión</label>
+                <input type="password" id="authToken" placeholder="Pegá tu token acá">
+            </div>
+            <div class="button-group">
+                <button type="button" class="btn-primary" id="btnGuardarConfig">Guardar configuración</button>
+            </div>
         </div>
 
         <form id="competitorForm">
-            <div class="info-section">
-                ℹ️ Completa los datos del competidor que estás viendo en MercadoLibre
+            <div class="info-section" id="infoSection">
+                Elegí a qué publicación tuya le compite este producto y revisá el precio antes de guardar.
             </div>
 
             <div class="form-group">
-                <label for="meliItemId">ID de MercadoLibre *</label>
-                <input type="text" id="meliItemId" name="meliItemId" placeholder="MLA123456789" required>
+                <label for="publicacion">Tu publicación *</label>
+                <select id="publicacion" required></select>
+                <div class="hint" id="publicacionHint"></div>
             </div>
 
             <div class="form-group">
-                <label for="titulo">Título del producto *</label>
-                <input type="text" id="titulo" name="titulo" placeholder="Nike Air Max 90..." required>
+                <label for="competidorItemId">ID o link del competidor *</label>
+                <input type="text" id="competidorItemId" placeholder="MLA123456789" required>
             </div>
 
             <div class="form-group">
-                <label for="precio">Precio *</label>
-                <input type="number" id="precio" name="precio" step="0.01" min="0" placeholder="15999" required>
+                <label for="titulo">Título del competidor</label>
+                <input type="text" id="titulo" placeholder="Nike Air Max 90...">
             </div>
 
             <div class="form-group">
-                <label for="moneda">Moneda</label>
-                <select id="moneda" name="moneda">
-                    <option value="1">ARS - Peso Argentino</option>
-                    <option value="2">USD - Dólar</option>
-                    <option value="3">BRL - Real Brasileño</option>
-                    <option value="4">MXN - Peso Mexicano</option>
-                    <option value="5">CLP - Peso Chileno</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="vendedor">Vendedor (opcional)</label>
-                <input type="text" id="vendedor" name="vendedor" placeholder="otro_store">
+                <label for="precio">Precio del competidor *</label>
+                <input type="number" id="precio" step="0.01" min="0" placeholder="15999" required>
             </div>
 
             <div class="button-group">
-                <button type="submit" class="btn-primary" id="btnGuardar">
-                    💾 Guardar a PricingML
-                </button>
-                <button type="reset" class="btn-secondary">
-                    🔄 Limpiar
-                </button>
+                <button type="submit" class="btn-primary" id="btnGuardar">Guardar a PricingML</button>
+                <button type="reset" class="btn-secondary">Limpiar</button>
             </div>
         </form>
 

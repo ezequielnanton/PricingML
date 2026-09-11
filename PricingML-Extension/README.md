@@ -1,80 +1,47 @@
 # PricingML Chrome Extension
 
-Extensión de Chrome que permite capturar competidores de MercadoLibre y sincronizar precios automáticamente en PricingML.
+Captura competidores de MercadoLibre desde el navegador y los vincula a tus publicaciones en
+PricingML. La guía de usuario completa está en [`../COMPETIDORES-EXTENSION.md`](../COMPETIDORES-EXTENSION.md).
 
-## Instalación para Desarrollo
+## Instalación para desarrollo
 
-1. **Clonar/descargar** esta carpeta a tu máquina
-2. Abrir Chrome y navegar a `chrome://extensions/`
-3. Activar **"Modo de desarrollador"** (esquina superior derecha)
-4. Hacer clic en **"Cargar extensión sin empaquetar"**
-5. Seleccionar la carpeta `PricingML-Extension/`
+1. `bash GENERATE_ICONS.sh` (requiere ImageMagick)
+2. `chrome://extensions/` → **Modo de desarrollador** → **Cargar extensión sin empaquetar**
+3. Elegir esta carpeta
+4. Clic en el icono → **Configuración** → URL del Motor y token de sesión (ADMIN)
 
-## Uso
+## Archivos
 
-1. **Navegar a MercadoLibre** (https://articulo.mercadolibre.com.ar/...)
-2. **Abrir cualquier producto** que sea competencia
-3. **Clic en el icono de la extensión** (esquina superior derecha del navegador)
-4. **Verificar datos** pre-llenados automáticamente:
-   - ID de MercadoLibre
-   - Título
-   - Precio
-5. **Opcionalmente editar** vendedor u otros datos
-6. **Clic "Guardar a PricingML"** → vincula automáticamente
+| Archivo | Qué hace |
+|---------|----------|
+| `manifest.json` | Manifest V3. Declara los hosts de ML y del Motor (`localhost`, `127.0.0.1`) |
+| `src/popup.html` | Formulario de captura y panel de configuración |
+| `src/popup.js` | Lee la pestaña, carga tus publicaciones, postea al Motor |
+| `src/background.js` | Service worker: deja la URL por defecto al instalar |
 
-## Configuración
+## Decisiones de diseño
 
-La extensión requiere que **PricingML Motor esté corriendo** en tu máquina:
-- Por defecto: `http://localhost:5000`
-- Si Motor está en otra IP/puerto, la extensión lo detecta automáticamente
+**No hay content script.** El popup lee la pestaña con `chrome.scripting.executeScript` al
+abrirse. Un content script que dejara los datos en `chrome.storage.session` no funciona: ese
+storage no es escribible desde un content script sin bajarle el nivel de acceso, y el dato
+guardado queda viejo si el usuario cambia de artículo.
 
-## Estructura
+**El usuario elige la publicación.** No se adivina por parecido de título: un match equivocado
+vincularía el competidor al producto errado en silencio, y ese precio alimenta el cálculo del
+precio de venta.
 
-```
-PricingML-Extension/
-├── manifest.json          # Configuración de la extensión (Manifest V3)
-├── README.md              # Este archivo
-├── src/
-│   ├── popup.html        # UI del popup (formulario)
-│   ├── popup.js          # Lógica del popup (envía datos a API)
-│   ├── content.js        # Inyectado en ML: extrae datos del DOM
-│   └── background.js     # Service Worker: eventos globales
-└── icons/                # Iconos de la extensión (16, 48, 128px)
-```
+**Se reusa el endpoint del panel web.** `POST /api/marketplace/ml/publicaciones/{id}/competidores`
+es el mismo que usa la app. Es idempotente: reenviar un competidor ya vinculado actualiza su
+precio en vez de fallar contra el UNIQUE `(PublicacionID, CompetidorItemID)`. Devuelve
+`esNuevo` y `precioAnterior` para que el popup diga si dio de alta o actualizó.
 
-## Flujo Técnico
+**El token se pega a mano.** Va en `chrome.storage.local` —no `sync`, que lo replicaría a la
+cuenta de Google del usuario— y viaja solo al Motor en el header `Authorization`. Nunca se manda
+a MercadoLibre.
 
-```
-Usuario en ML
-    ↓
-Clic en icono de extensión
-    ↓
-content.js extrae: ID, título, precio de ML
-    ↓
-popup.html muestra el formulario pre-llenado
-    ↓
-Usuario revisa/edita y clic "Guardar"
-    ↓
-popup.js envía POST a http://localhost:5000/api/competidores/capturado
-    ↓
-Motor API vincula automáticamente (búsqueda por GTIN)
-    ↓
-Motor inserta snapshot de precio
-    ↓
-Popup muestra "✓ Vinculado correctamente"
-```
+## Limitaciones
 
-## Notas
-
-- La extensión funciona **solo en Chrome/Edge** (Manifest V3)
-- Requiere que **PricingML Motor esté corriendo** en http://localhost:5000
-- Los datos capturados se envían SOLO al Motor (tu red privada, no a internet)
-- El motor debe estar en la misma red para que funcione
-
-## Troubleshooting
-
-**"Error de conexión"** → Verificar que Motor esté corriendo en http://localhost:5000/swagger
-
-**"No se encontró un producto propio"** → El título del competidor no coincide con ninguno de tus productos. Agregarlos primero en "Administración > Productos"
-
-**"ID de ML vacío"** → Abrir una página de artículo válida de MercadoLibre
+- Solo Chrome/Edge (Manifest V3).
+- El Motor tiene que estar corriendo y el host declarado en `host_permissions`.
+- La captura es siempre manual: ML devuelve 403 al leer publicaciones ajenas por API, así que
+  no hay refresco automático posible (ver ADR 0010).

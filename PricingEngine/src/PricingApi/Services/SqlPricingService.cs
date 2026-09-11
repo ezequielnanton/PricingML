@@ -123,8 +123,6 @@ public class SqlPricingService
         var normalized = idioma?.Trim().ToUpperInvariant();
         return normalized is "ES" or "EN" or "PT" ? normalized : "ES";
     }
-
-    public string GetConnectionString() => _connectionString;
 }
 
 public class PricingDecisionResult

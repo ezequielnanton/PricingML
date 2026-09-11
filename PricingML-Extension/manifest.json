@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "PricingML Competitor Capture",
   "version": "1.0.0",
-  "description": "Captura competidores de MercadoLibre y sincroniza precios automáticamente en PricingML",
+  "description": "Captura competidores de MercadoLibre y los vincula a tus publicaciones en PricingML",
   "permissions": [
     "activeTab",
     "scripting",
@@ -13,7 +13,9 @@
     "https://articulo.mercadolibre.com/*",
     "https://articulo.mercadolibre.com.mx/*",
     "https://articulo.mercadolibre.com.br/*",
-    "https://articulo.mercadolibre.cl/*"
+    "https://articulo.mercadolibre.cl/*",
+    "http://localhost/*",
+    "http://127.0.0.1/*"
   ],
   "action": {
     "default_popup": "src/popup.html",
