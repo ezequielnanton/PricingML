@@ -25,21 +25,16 @@ Conviene ser claro para no esperar algo que no pasa:
 
 ## Instalación
 
-### 1. Generar los iconos
+### 1. Cargar en Chrome
 
-```bash
-cd PricingML-Extension/
-bash GENERATE_ICONS.sh      # requiere ImageMagick
-```
-
-### 2. Cargar en Chrome
+No hay nada que compilar ni generar: la carpeta ya viene lista.
 
 1. Ir a `chrome://extensions/`
 2. Activar **"Modo de desarrollador"** (arriba a la derecha)
 3. **"Cargar extensión sin empaquetar"**
 4. Elegir la carpeta `PricingML-Extension/`
 
-### 3. Sesión: no hay nada que configurar
+### 2. Sesión: no hay nada que configurar
 
 El endpoint que usa la extensión está detrás del login y exige rol **ADMIN**, igual que
 cualquier otra escritura de la app. Pero **no tenés que copiar ningún token**: la extensión
@@ -114,11 +109,14 @@ PricingML-Extension/
 │   ├── popup.js           # Lee la pestaña, carga tus publicaciones, postea al Motor
 │   └── background.js      # Service worker: solo la URL por defecto al instalar
 ├── icons/
-│   ├── icon.svg
+│   ├── icon.svg           # Diseño de referencia
 │   └── icon-{16,48,128}.png
-├── GENERATE_ICONS.sh
+├── generar-iconos.py      # Solo si se cambia el diseño del icono
 └── README.md
 ```
+
+Los PNG del icono están versionados: `generar-iconos.py` los rehace con Python pelado (sin
+ImageMagick ni librerías) y solo hace falta correrlo si se toca el diseño.
 
 No hay content script: el popup lee la pestaña con `chrome.scripting` en el momento en que lo
 abrís. Así el dato nunca queda viejo si cambiás de artículo.

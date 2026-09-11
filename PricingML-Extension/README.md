@@ -5,10 +5,11 @@ PricingML. La guía de usuario completa está en [`../COMPETIDORES-EXTENSION.md`
 
 ## Instalación para desarrollo
 
-1. `bash GENERATE_ICONS.sh` (requiere ImageMagick)
-2. `chrome://extensions/` → **Modo de desarrollador** → **Cargar extensión sin empaquetar**
-3. Elegir esta carpeta
-4. Tener PricingML abierto y logueado con un usuario ADMIN: la sesión se toma de ahí
+1. `chrome://extensions/` → **Modo de desarrollador** → **Cargar extensión sin empaquetar**
+2. Elegir esta carpeta
+3. Tener PricingML abierto y logueado con un usuario ADMIN: la sesión se toma de ahí
+
+No hay paso de build: los PNG del icono están versionados.
 
 ## Archivos
 
@@ -18,6 +19,7 @@ PricingML. La guía de usuario completa está en [`../COMPETIDORES-EXTENSION.md`
 | `src/popup.html` | Formulario de captura y panel de configuración |
 | `src/popup.js` | Lee la pestaña, carga tus publicaciones, postea al Motor |
 | `src/background.js` | Service worker: deja la URL por defecto al instalar |
+| `generar-iconos.py` | Rehace `icons/icon-{16,48,128}.png`. Solo si se cambia el diseño |
 
 ## Decisiones de diseño
 
@@ -42,6 +44,11 @@ relee el token y se reintenta una vez, así que el vencimiento es transparente. 
 usuario que copiara un token de la consola, o usuario y contraseña una vez por día, eran las
 alternativas descartadas. El token va en `chrome.storage.local` —no `sync`, que lo replicaría a
 la cuenta de Google— y viaja solo al Motor en el header `Authorization`. Nunca se manda a ML.
+
+**Los iconos se dibujan, no se rasterizan.** `generar-iconos.py` reproduce el diseño de
+`icon.svg` con `zlib` y `struct` de la stdlib, y los PNG quedan commiteados. Depender de
+ImageMagick para instalar la extensión trababa la instalación en Windows, que es donde corre
+esto. Chrome no acepta SVG como icono de extensión, así que los PNG tienen que existir sí o sí.
 
 ## Limitaciones
 
