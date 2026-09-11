@@ -5,11 +5,16 @@ PricingML. La guía de usuario completa está en [`../COMPETIDORES-EXTENSION.md`
 
 ## Instalación para desarrollo
 
-1. `chrome://extensions/` → **Modo de desarrollador** → **Cargar extensión sin empaquetar**
-2. Elegir esta carpeta
-3. Tener PricingML abierto y logueado con un usuario ADMIN: la sesión se toma de ahí
+1. Abrir `chrome://extensions/` (en Edge: `edge://extensions/`)
+2. Activar **"Modo de desarrollador"** (toggle arriba a la derecha, debe quedar **prendido**)
+3. Clic en **"Cargar extensión sin empaquetar"**
+4. **Elegir esta carpeta** (`PricingML-Extension`) — la que tiene `manifest.json` directamente adentro
+5. Clic en 🧩 en la barra de direcciones, buscar **"PricingML Competitor Capture"**, clic en 📌 para fijarla
+6. Tener **PricingML abierto y logueado** con un usuario ADMIN: la extensión toma la sesión de ahí
 
 No hay paso de build: los PNG del icono están versionados.
+
+**[Ver el flujo completo »](../COMPETIDORES-EXTENSION.md#instalación)**
 
 ## Archivos
 

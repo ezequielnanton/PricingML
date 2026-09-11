@@ -23,6 +23,22 @@ Conviene ser claro para no esperar algo que no pasa:
 
 ---
 
+## Cómo funciona
+
+Para entender paso a paso qué hace la extensión, desde que clickeas el icono hasta que el Motor
+guarda los datos, consultá la guía visual interactiva:
+
+**[📖 Cómo funciona PricingML Extension](https://claude.ai/code/artifact/6f854c89-113d-402c-bf75-88369ecf9f64)**
+
+Ese documento tiene:
+- El flujo completo en 10 pasos (desde que abres MercadoLibre hasta que se guardan datos)
+- Ejemplos reales de datos (IDs, precios, respuestas del Motor)
+- Cómo distingue "primera captura" de "recaptura con actualización"
+- Flujos de error (token vencido, Motor apagado, sin permisos)
+- Por qué es seguro (no automatiza ML, valida en el Motor, sesión de 12h)
+
+---
+
 ## Instalación
 
 ### 1. Cargar en Chrome
@@ -30,13 +46,27 @@ Conviene ser claro para no esperar algo que no pasa:
 No hay nada que compilar ni generar: la carpeta ya viene lista.
 
 1. Ir a `chrome://extensions/` (en Edge, `edge://extensions/`)
-2. Activar **"Modo de desarrollador"** (arriba a la derecha). Si queda apagado, Chrome esconde
-   las extensiones sin empaquetar y ni siquiera muestra el botón del paso siguiente.
-3. **"Cargar extensión sin empaquetar"**
-4. Elegir la carpeta **que tiene `manifest.json` adentro**: `...\PricingML\PricingML-Extension`.
-   No la raíz del repo ni `src\`.
-5. Chrome **no** muestra sola la extensión en la barra: clic en el **🧩** al lado de la barra de
-   direcciones y después en el **alfiler** de PricingML, para dejarla a mano.
+2. **Activar "Modo de desarrollador"** (toggle arriba a la derecha). Si lo apagas, Chrome esconde
+   las extensiones sin empaquetar. Es crítico que quede **prendido**.
+3. Clic en **"Cargar extensión sin empaquetar"**
+4. **Elegir la carpeta que contiene `manifest.json` directamente adentro:**
+   ```
+   C:\Proyectos\PricingML\PricingML-Extension
+   ```
+   **No es la raíz del repo** (`C:\Proyectos\PricingML`), **ni tampoco `src\`**. Tiene que ser
+   la carpeta donde ves estos archivos: `manifest.json`, `src/`, `icons/`, etc.
+
+5. La extensión aparecerá en la lista. **En Edge**, la ruta es `edge://extensions/` en lugar de
+   `chrome://extensions/`, pero el resto es igual.
+
+### 2. Fijarla en la barra (obligatorio)
+
+Chrome no muestra sola el icono en la barra de herramientas. Tenés que fijarlo:
+
+1. Clic en el **🧩** (puzzle) a la derecha de la barra de direcciones
+2. Buscar **"PricingML Competitor Capture"**
+3. Clic en el **📌 alfiler** al lado
+4. El icono azul de PricingML debe quedar visible al lado de la barra de búsqueda
 
 ### 2. Sesión: no hay nada que configurar
 
@@ -158,15 +188,16 @@ navegador y cargar a mano son la misma operación, así que hay un solo camino e
 
 | Problema | Causa | Solución |
 |----------|-------|----------|
+| **No aparece en `chrome://extensions/`** | Modo de desarrollador apagado, o se eligió otra carpeta | Prender el toggle (arriba a la derecha) y elegir la carpeta que tiene `manifest.json` adentro: `...\PricingML\PricingML-Extension` |
+| **Aparece en la lista pero no hay icono en la barra** | Chrome no fija automáticamente las extensiones nuevas | Clic en 🧩 (puzzle) → buscar "PricingML" → clic en 📌 (alfiler) al lado |
+| **"Could not load icon" al cargar la extensión** | Falta el `git pull` con los PNG del icono | `git pull` para traer `icons/icon-{16,48,128}.png`, luego **Recargar** la extensión en `chrome://extensions/` |
 | "No encontré una sesión de PricingML abierta" | La app no está abierta o no hay login | Abrir PricingML y loguearse |
 | "Tu sesión de PricingML venció" (401) | Pasaron las 12 horas | Volver a iniciar sesión en la app |
 | "Tu usuario es de solo lectura" (403) | El usuario no es ADMIN | Iniciar sesión con un usuario ADMIN |
-| "No se pudo conectar con el Motor" | Motor apagado, o host no declarado | Verificar `http://localhost:5000/swagger` y `host_permissions` |
+| "No se pudo conectar con el Motor" | Motor apagado, o host no declarado | Verificar `http://localhost:5000/swagger` y `host_permissions` en `manifest.json` |
 | "No tenés publicaciones activas" | No hay publicaciones en la base | Sincronizar publicaciones desde la app primero |
 | "Esa publicación no tiene Moneda Principal" | Falta configurarla | Cargar la Moneda Principal de la empresa |
 | El popup no completa los datos | No es una página de artículo | Abrir una URL `articulo.mercadolibre.com...` |
-| La extensión no aparece en `chrome://extensions/` | Modo de desarrollador apagado, o se eligió otra carpeta | Prender el toggle y elegir la carpeta que tiene `manifest.json` adentro |
-| Está en la lista pero no hay icono en la barra | Chrome no fija sola una extensión nueva | Clic en el 🧩 de la barra → alfiler al lado de PricingML |
 | El precio que completa no es el que veo | El PDP de ML cambió de markup | Corregirlo a mano y avisar: hay que actualizar `extraerDatosDelArticulo` |
 
 ---
